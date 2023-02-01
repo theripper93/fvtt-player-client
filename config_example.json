@@ -1,12 +1,12 @@
 {
     "games": [
         {
-            "name": "The Legend of Zelda: Breath of the Wild",
+            "name": "This is the name of my game",
             "url": "https://www.nintendo.com/games/detail/the-legend-of-zelda-breath-of-the-wild-switch"
         }
     ],
     "background": "https://images2.alphacoders.com/123/123862.jpg",
     "backgroundColor": "#000000",
-    "textColor": "black",
+    "textColor": "white",
     "accentColor": "green"
 }
