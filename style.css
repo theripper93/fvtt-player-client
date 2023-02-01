@@ -1,17 +1,27 @@
-:root{
+:root {
     --color-background: #003049ff;
     --maximum-red: #d62828ff;
-    --orange: #f77f00ff;
-    --maximum-yellow-red: #fcbf49ff;
+    --color-accent: #f77f00ff;
     --color-text-primary: #eae2b7ff;
 }
 
-body{
+body {
+    background-color: var(--color-background);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    min-width: 100vw;
+    margin: 0;
+    padding: 0;
+}
+
+.content {
     user-select: none;
     position: absolute;
-    background-color: var(--color-background);
+
     color: var(--color-text-primary);
-    font-family: 'Open Sans', sans-serif;
+    font-family: "Open Sans", sans-serif;
     font-size: 16px;
     line-height: 1.5;
     margin: 0;
@@ -25,8 +35,9 @@ body{
     overflow-y: auto;
 }
 
-input{
-    background-color: var(--color-background);
+input {
+    background-color: transparent;
+        backdrop-filter: blur(5px);
     border: none;
     border-bottom: 1px solid var(--color-text-primary);
     color: var(--color-text-primary);
@@ -38,12 +49,13 @@ input{
     transition: all 0.3s ease-in-out;
 }
 
-input:focus{
-    border-bottom: 1px solid var(--orange);
+input:focus {
+    border-bottom: 1px solid var(--color-accent);
 }
 
-button{
+button {
     background-color: transparent;
+        backdrop-filter: blur(5px);
     border: 2px solid var(--color-text-primary);
     color: var(--color-text-primary);
     font-size: 1.5rem;
@@ -55,25 +67,25 @@ button{
     cursor: pointer;
 }
 
-button:hover{
-    border: 2px solid var(--orange);
+button:hover {
+    border: 2px solid var(--color-accent);
 }
 
-#info{
+#info {
     position: absolute;
-    bottom:0;
+    bottom: 0;
     right: 0;
     margin-right: 0.1rem;
 }
 
-#game-list{
+#game-list {
     list-style: none;
     margin: 0;
     padding: 1rem;
     transition: all 0.3s ease-in-out;
 }
 
-.game-item{
+.game-item {
     position: relative;
     display: flex;
     flex-direction: row;
@@ -87,14 +99,17 @@ button:hover{
     width: 100%;
     overflow: hidden;
     transition: all 0.3s ease-in-out;
+        backdrop-filter: blur(5px);
+        text-shadow: 0 0 5px black;
+        box-shadow: 0 0 5px black;
 }
 
-.game-item:hover{
-    border: 2px solid var(--orange);
+.game-item:hover {
+    border: 2px solid var(--color-accent);
     cursor: pointer;
 }
 
-.game-item a{
+.game-item a {
     text-decoration: none;
     color: var(--color-text-primary);
     font-size: 1.5rem;
@@ -103,7 +118,7 @@ button:hover{
     transition: all 0.3s ease-in-out;
 }
 
-.delete-game{
+.delete-game {
     opacity: 0;
     position: absolute;
     min-height: 100%;
@@ -121,7 +136,7 @@ button:hover{
     cursor: pointer;
 }
 
-.delete-game:hover{
+.delete-game:hover {
     opacity: 1;
     border: none;
 }

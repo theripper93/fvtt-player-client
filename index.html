@@ -4,15 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
     <title>VTT Desktop Client</title>
     <script defer src="./renderer.js"></script>
     <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
+    <div class="content">
     <ul id="game-list">
-        
+    
     </ul>
     <div id="add-game-wrapper">
         <input type="text" name="" id="game-name" placeholder="Name">
@@ -20,8 +20,9 @@
         <button id="add-game">Add Game</button>
     </div>
     <div id="info">Node.js <span id="node-version"></span>,
-    Chromium <span id="chrome-version"></span>,
-    Electron <span id="electron-version"></span></div>
+        Chromium <span id="chrome-version"></span>,
+        Electron <span id="electron-version"></span></div>
+    </div>
 </body>
 
 </html>
