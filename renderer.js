@@ -6,10 +6,13 @@
 document.querySelector("#add-game").addEventListener("click", () => {
     const gameUrl = document.querySelector("#game-url").value;
     const gameName = document.querySelector("#game-name").value;
+    if(!gameUrl || !gameName) return alert("Please enter a game name and url");
     const gameList = window.localStorage.getItem("gameList") || "[]";
     const gameListJson = JSON.parse(gameList);
     gameListJson.push({name: gameName, url: gameUrl, id: Math.round(Math.random()*1000000)});
     window.localStorage.setItem("gameList", JSON.stringify(gameListJson));
+    document.querySelector("#game-url").value = "";
+    document.querySelector("#game-name").value = "";
     createGameList();
 });
 
