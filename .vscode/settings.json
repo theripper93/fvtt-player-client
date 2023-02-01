@@ -1,0 +1,5 @@
+{
+    "i18n-ally.localesPaths": [
+        "out/fvtt-player-client-win32-x64/locales"
+    ]
+}

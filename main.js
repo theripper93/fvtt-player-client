@@ -1,7 +1,7 @@
 const { app, BrowserWindow, globalShortcut } = require("electron");
 const path = require("path");
 
-app.commandLine.appendSwitch("force_high_performance_gpu", "true");
+app.commandLine.appendSwitch("force_high_performance_gpu");
 
 const createWindow = () => {
     const win = new BrowserWindow({

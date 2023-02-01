@@ -1507,20 +1507,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fvtt-player-client@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "fvtt-player-client@workspace:."
-  dependencies:
-    "@electron-forge/cli": ^6.0.4
-    "@electron-forge/maker-deb": ^6.0.4
-    "@electron-forge/maker-rpm": ^6.0.4
-    "@electron-forge/maker-squirrel": ^6.0.4
-    "@electron-forge/maker-zip": ^6.0.4
-    electron: ^22.1.0
-    electron-squirrel-startup: ^1.0.0
-  languageName: unknown
-  linkType: soft
-
 "galactus@npm:^0.2.1":
   version: 0.2.1
   resolution: "galactus@npm:0.2.1"
@@ -3596,6 +3582,20 @@ __metadata:
   checksum: 35703ac889d419cf2aceef63daeadbe4e77227c39ab6287eeb6c1b36a746b364f50ba22e88591f5d017bc54685d8137bc2d328d0a896e4d3fd22093c0f32a9ad
   languageName: node
   linkType: hard
+
+"vtt-desktop-client@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "vtt-desktop-client@workspace:."
+  dependencies:
+    "@electron-forge/cli": ^6.0.4
+    "@electron-forge/maker-deb": ^6.0.4
+    "@electron-forge/maker-rpm": ^6.0.4
+    "@electron-forge/maker-squirrel": ^6.0.4
+    "@electron-forge/maker-zip": ^6.0.4
+    electron: ^22.1.0
+    electron-squirrel-startup: ^1.0.0
+  languageName: unknown
+  linkType: soft
 
 "wcwidth@npm:^1.0.1":
   version: 1.0.1
