@@ -3,6 +3,9 @@ const path = require("path");
 const fs = require("fs");
 
 app.commandLine.appendSwitch("force_high_performance_gpu");
+
+/* Remove the comment (//) from the line below to ignore certificate errors (useful for self-signed certificates) */
+
 //app.commandLine.appendSwitch("ignore-certificate-errors");
 
 let win;
