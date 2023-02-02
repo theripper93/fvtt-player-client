@@ -20,7 +20,7 @@ const createWindow = () => {
             enableRemoteModule: false,
         },
     });
-    //win.menuBarVisible = false;
+    win.menuBarVisible = false;
     win.loadFile("index.html");
     win.maximize();
     win.show();
