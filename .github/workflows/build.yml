@@ -77,38 +77,15 @@ jobs:
           echo "Folder Contents:"
           ls -Rla out/make
 
-      - run: zip -r vtt-desktop-client-linux.zip out/
-
-      - name: Upload Linux Artifact
+      - name: Zip Make Folder
+        run: |
+          cd out
+          zip -r make.zip make
+  
+      - name: Upload Zip to Release
         uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./vtt-desktop-client-linux.zip
-          asset_name: vtt-desktop-client-linux
-          asset_content_type: application/octet-stream
-
-      - run: zip -r vtt-desktop-client-macos.zip out/
-
-      - name: Upload macOS Artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./vtt-desktop-client-macos.zip
-          asset_name: vtt-desktop-client-macos
-          asset_content_type: application/octet-stream
-
-      - run: zip -r vtt-desktop-client-windows.zip out/
-
-      - name: Upload Windows Artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./vtt-desktop-client-windows.zip
-          asset_name: vtt-desktop-client-windows.exe
-          asset_content_type: application/octet-stream
+          asset_path: out/make.zip
+          asset_name: make.zip
+          asset_content_type: application/zip
