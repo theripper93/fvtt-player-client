@@ -1,0 +1,115 @@
+name: Build
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Update package.json
+        run: |
+          npm version ${{ github.event.release.tag_name }}
+          npm install
+          git push --follow-tags
+
+      - name: Build for Linux
+        run: |
+          yarn make --platform=linux
+          # Add any additional steps required for Linux build
+
+      - name: Create Linux build folder
+        run: |
+          mkdir -p vtt-desktop-client-${{ github.event.release.tag_name }}-linux
+          mv path/to/linux/built/files vtt-desktop-client-${{ github.event.release.tag_name }}-linux
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: vtt-desktop-client-${{ github.event.release.tag_name }}-linux
+          path: vtt-desktop-client-${{ github.event.release.tag_name }}-linux
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Update package.json
+        run: |
+          npm version ${{ github.event.release.tag_name }}
+          npm install
+          git push --follow-tags
+
+      - name: Build for macOS
+        run: |
+          yarn make --platform=darwin
+          # Add any additional steps required for macOS build
+
+      - name: Create macOS build folder
+        run: |
+          mkdir -p vtt-desktop-client-${{ github.event.release.tag_name }}-macos
+          mv path/to/macos/built/files vtt-desktop-client-${{ github.event.release.tag_name }}-macos
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: vtt-desktop-client-${{ github.event.release.tag_name }}-macos
+          path: vtt-desktop-client-${{ github.event.release.tag_name }}-macos
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Update package.json
+        run: |
+          npm version ${{ github.event.release.tag_name }}
+          npm install
+          git push --follow-tags
+
+      - name: Build for Windows
+        run: |
+          yarn make --platform=win32
+          # Add any additional steps required for Windows build
+
+      - name: Create Windows build folder
+        run: |
+          mkdir -p vtt-desktop-client-${{ github.event.release.tag_name }}-windows
+          mv path/to/windows/built/files vtt-desktop-client-${{ github.event.release.tag_name }}-windows
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: vtt-desktop-client-${{ github.event.release.tag_name }}-windows
+          path: vtt-desktop-client-${{ github.event.release.tag_name }}-windows
