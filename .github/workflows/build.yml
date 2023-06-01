@@ -28,7 +28,7 @@ jobs:
       - name: Create Linux build folder
         run: |
           mkdir -p vtt-desktop-client-${{ github.event.release.tag_name }}-linux
-          mv path/to/linux/built/files vtt-desktop-client-${{ github.event.release.tag_name }}-linux
+          mv linux vtt-desktop-client-${{ github.event.release.tag_name }}-linux
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
@@ -58,7 +58,7 @@ jobs:
       - name: Create macOS build folder
         run: |
           mkdir -p vtt-desktop-client-${{ github.event.release.tag_name }}-macos
-          mv path/to/macos/built/files vtt-desktop-client-${{ github.event.release.tag_name }}-macos
+          mv macos vtt-desktop-client-${{ github.event.release.tag_name }}-macos
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
@@ -88,7 +88,7 @@ jobs:
       - name: Create Windows build folder
         run: |
           mkdir -p vtt-desktop-client-${{ github.event.release.tag_name }}-windows
-          mv path/to/windows/built/files vtt-desktop-client-${{ github.event.release.tag_name }}-windows
+          mv windows vtt-desktop-client-${{ github.event.release.tag_name }}-windows
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
