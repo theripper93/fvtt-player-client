@@ -21,11 +21,6 @@ jobs:
 
       - name: Build for Linux
         run: yarn make --platform linux
-
-      - name: Zip Make Folder
-        run: |
-          cd out
-          zip -r linux.zip make
   
       - name: Upload Zip to Release
         uses: actions/upload-release-asset@v1
@@ -33,8 +28,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: out/linux.zip
-          asset_name: linux.zip
+          asset_path: out/make/deb/x64/vtt-desktop-client_${{ github.event.release.tag_name }}_amd64.deb
+          asset_name: vtt-desktop-client_${{ github.event.release.tag_name }}_amd64.deb
+          asset_content_type: application/zip
+
+      - name: Upload Zip to Release 2
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: out/make/rpm/x64/vtt-desktop-client-${{ github.event.release.tag_name }}.x86_64.rpm
+          asset_name: vtt-desktop-client-${{ github.event.release.tag_name }}.x86_64.rpm
           asset_content_type: application/zip
 
   build-macos:
@@ -88,8 +93,8 @@ jobs:
 
       - name: Zip Make Folder
         run: |
-          cd out
-          zip -r win64.zip make
+          $outputPath = "$PWD\out\win64.zip"
+          Compress-Archive -Path "out\make" -DestinationPath $outputPath
   
       - name: Upload Zip to Release
         uses: actions/upload-release-asset@v1
