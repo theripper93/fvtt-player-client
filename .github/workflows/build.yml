@@ -22,6 +22,12 @@ jobs:
       - name: Build for Linux
         run: yarn make --platform linux
 
+      - name: Debug Working Folder
+        run: |
+          echo "Working Directory: $PWD"
+          echo "Folder Contents:"
+          ls -Rla
+
   build-macos:
     runs-on: macos-latest
     steps:
@@ -39,6 +45,12 @@ jobs:
       - name: Build for macOS
         run: yarn make --platform darwin
 
+      - name: Debug Working Folder
+        run: |
+          echo "Working Directory: $PWD"
+          echo "Folder Contents:"
+          ls -Rla
+
   build-windows:
     runs-on: windows-latest
     steps:
@@ -55,6 +67,12 @@ jobs:
 
       - name: Build for Windows
         run: yarn make --platform win32
+
+      - name: Debug Working Folder
+        run: |
+          echo "Working Directory: $PWD"
+          echo "Folder Contents:"
+          ls -Rla
 
   release:
     needs: [build-linux, build-macos, build-windows]
