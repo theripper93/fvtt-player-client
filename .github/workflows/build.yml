@@ -75,7 +75,7 @@ jobs:
         run: |
           echo "Working Directory: $PWD"
           echo "Folder Contents:"
-          ls -Rla out/make
+          ls -Rla
 
       - name: Zip Make Folder
         run: |
