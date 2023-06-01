@@ -22,7 +22,7 @@ jobs:
 
       - name: Update package.json
         run: |
-          npm version ${{ github.event.release.tag_name }}
+          npm --no-git-tag-version version ${{ github.event.release.tag_name }}
           npm install
           git push --follow-tags
 
@@ -58,7 +58,7 @@ jobs:
 
       - name: Update package.json
         run: |
-          npm version ${{ github.event.release.tag_name }}
+          npm --no-git-tag-version version ${{ github.event.release.tag_name }}
           npm install
           git push --follow-tags
 
@@ -94,7 +94,7 @@ jobs:
 
       - name: Update package.json
         run: |
-          npm version ${{ github.event.release.tag_name }}
+          npm --no-git-tag-version version ${{ github.event.release.tag_name }}
           npm install
           git push --follow-tags
 
