@@ -6,63 +6,6 @@ on:
       - created
 
 jobs:
-  build-linux:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 14
-
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Build for Linux
-        run: |
-          yarn make --platform=linux
-          # Add any additional steps required for Linux build
-
-      - name: Create Linux build folder
-        run: |
-          mkdir -p vtt-desktop-client-${{ github.event.release.tag_name }}-linux
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: vtt-desktop-client-${{ github.event.release.tag_name }}-linux
-          path: vtt-desktop-client-${{ github.event.release.tag_name }}-linux
-
-  build-macos:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 14
-
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Build for macOS
-        run: |
-          yarn make --platform=darwin
-          # Add any additional steps required for macOS build
-
-      - name: Create macOS build folder
-        run: |
-          mkdir -p vtt-desktop-client-${{ github.event.release.tag_name }}-macos
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: vtt-desktop-client-${{ github.event.release.tag_name }}-macos
-          path: vtt-desktop-client-${{ github.event.release.tag_name }}-macos
 
   build-windows:
     runs-on: windows-latest
@@ -85,10 +28,10 @@ jobs:
 
       - name: Create Windows build folder
         run: |
-          mkdir -p vtt-desktop-client-${{ github.event.release.tag_name }}-windows
+          mkdir -p win
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: vtt-desktop-client-${{ github.event.release.tag_name }}-windows
-          path: vtt-desktop-client-${{ github.event.release.tag_name }}-windows
+          name: lol
+          path: win
