@@ -1,37 +1,72 @@
-name: Build
-
+name: Build and Release
 on:
+  push:
+    branches:
+      - main
   release:
     types:
       - created
 
 jobs:
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+  build-and-release:
+    runs-on: ${{ matrix.os }}
 
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: 14
 
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Install dependencies
-        run: yarn install
+        run: yarn
 
-      - name: Build for Windows
-        run: |
-          yarn make --platform=win32
-          # Add any additional steps required for Windows build
+      - name: Build for ${{ matrix.os }}
+        run: yarn make --platform ${{ matrix.os }}
 
-      - name: Create Windows build folder
-        run: |
-          mkdir -p vtt-desktop-client-${{ github.event.release.tag_name }}-windows
-          mv out/ vtt-desktop-client-${{ github.event.release.tag_name }}-windows/
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: vtt-desktop-client-${{ github.event.release.tag_name }}-windows
-          path: vtt-desktop-client-${{ github.event.release.tag_name }}-windows
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Windows Artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./out/make/squirrel.windows/x64/vtt-desktop-client.exe
+          asset_name: vtt-desktop-client-${{ matrix.os }}.exe
+          asset_content_type: application/octet-stream
+
+      - name: Upload macOS Artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./out/make/vtt-desktop-client-darwin-x64/vtt-desktop-client.app.zip
+          asset_name: vtt-desktop-client-${{ matrix.os }}.zip
+          asset_content_type: application/octet-stream
+
+      - name: Upload Linux Artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./out/make/vtt-desktop-client-linux-x64/vtt-desktop-client
+          asset_name: vtt-desktop-client-${{ matrix.os }}
+          asset_content_type: application/octet-stream
