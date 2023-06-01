@@ -71,15 +71,7 @@ jobs:
       - name: Install dependencies
         run: yarn
 
-      - name: Upload Linux Artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./out/make/vtt-desktop-client-linux-x64/vtt-desktop-client
-          asset_name: vtt-desktop-client-linux
-          asset_content_type: application/octet-stream
+
 
       - name: Upload macOS Artifact
         uses: actions/upload-release-asset@v1
