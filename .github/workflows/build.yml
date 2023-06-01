@@ -28,7 +28,7 @@ jobs:
       - name: Create Windows build folder
         run: |
           mkdir -p vtt-desktop-client-${{ github.event.release.tag_name }}-windows
-          mv out vtt-desktop-client-${{ github.event.release.tag_name }}-windows/${{ runner.os }}
+          mv out/ vtt-desktop-client-${{ github.event.release.tag_name }}-windows/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
