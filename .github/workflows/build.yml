@@ -20,12 +20,6 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Update package.json
-        run: |
-          npm --no-git-tag-version version ${{ github.event.release.tag_name }}
-          npm install
-          git push --follow-tags
-
       - name: Build for Linux
         run: |
           yarn make --platform=linux
@@ -56,12 +50,6 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Update package.json
-        run: |
-          npm --no-git-tag-version version ${{ github.event.release.tag_name }}
-          npm install
-          git push --follow-tags
-
       - name: Build for macOS
         run: |
           yarn make --platform=darwin
@@ -91,12 +79,6 @@ jobs:
 
       - name: Install dependencies
         run: yarn install
-
-      - name: Update package.json
-        run: |
-          npm --no-git-tag-version version ${{ github.event.release.tag_name }}
-          npm install
-          git push --follow-tags
 
       - name: Build for Windows
         run: |
