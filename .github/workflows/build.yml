@@ -75,7 +75,7 @@ jobs:
         run: |
           echo "Working Directory: $PWD"
           echo "Folder Contents:"
-          ls -la
+          ls -Rla out/make
 
       - run: zip -r vtt-desktop-client-linux.zip out/
 
