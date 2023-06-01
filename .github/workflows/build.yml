@@ -5,13 +5,8 @@ on:
       - created
 
 jobs:
-  build-and-release:
-    runs-on: ${{ matrix.os.machine }}
-
-    strategy:
-      matrix:
-        os: [{machine : ubuntu-latest, platform: linux}, {machine : macos-latest, platform: darwin}, {machine : windows-latest, platform: win32} ]
-
+  build-linux:
+    runs-on: ubuntu-latest
     steps:
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -24,8 +19,57 @@ jobs:
       - name: Install dependencies
         run: yarn
 
-      - name: Build for ${{ matrix.os.machine }}
-        run: yarn make --platform ${{ matrix.os.platform }}
+      - name: Build for Linux
+        run: yarn make --platform linux
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Build for macOS
+        run: yarn make --platform darwin
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Build for Windows
+        run: yarn make --platform win32
+
+  release:
+    needs: [build-linux, build-macos, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: yarn
 
       - name: Create Release
         id: create_release
@@ -38,14 +82,14 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Upload Windows Artifact
+      - name: Upload Linux Artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./out/make/squirrel.windows/x64/vtt-desktop-client.exe
-          asset_name: vtt-desktop-client-${{ matrix.platform }}.exe
+          asset_path: ./out/make/vtt-desktop-client-linux-x64/vtt-desktop-client
+          asset_name: vtt-desktop-client-linux
           asset_content_type: application/octet-stream
 
       - name: Upload macOS Artifact
@@ -55,15 +99,15 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./out/make/vtt-desktop-client-darwin-x64/vtt-desktop-client.app.zip
-          asset_name: vtt-desktop-client-${{ matrix.platform }}.zip
+          asset_name: vtt-desktop-client-macos
           asset_content_type: application/octet-stream
 
-      - name: Upload Linux Artifact
+      - name: Upload Windows Artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./out/make/vtt-desktop-client-linux-x64/vtt-desktop-client
-          asset_name: vtt-desktop-client-${{ matrix.platform }}
+          asset_path: ./out/make/squirrel.windows/x64/vtt-desktop-client.exe
+          asset_name: vtt-desktop-client-windows.exe
           asset_content_type: application/octet-stream
