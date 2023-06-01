@@ -38,8 +38,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: out/make/rpm/x64/vtt-desktop-client-${{ github.event.release.tag_name }}.x86_64.rpm
-          asset_name: vtt-desktop-client-${{ github.event.release.tag_name }}.x86_64.rpm
+          asset_path: out/make/rpm/x64/vtt-desktop-client-${{ github.event.release.tag_name }}-1.x86_64.rpm
+          asset_name: vtt-desktop-client-${{ github.event.release.tag_name }}-1.x86_64.rpm
           asset_content_type: application/zip
 
   build-macos:
@@ -94,7 +94,7 @@ jobs:
       - name: Zip Make Folder
         run: |
           $outputPath = "$PWD\out\win64.zip"
-          Compress-Archive -Path "out\make" -DestinationPath $outputPath
+          Compress-Archive -Path "out\make\squirrel.windows\x64" -DestinationPath $outputPath
   
       - name: Upload Zip to Release
         uses: actions/upload-release-asset@v1
@@ -103,5 +103,5 @@ jobs:
         with:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: out/win64.zip
-          asset_name: win64.zip
+          asset_name: vtt-desktop-client-windows-x64-${{ github.event.release.tag_name }}.zip
           asset_content_type: application/zip
