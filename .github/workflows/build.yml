@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [linus, darwin, win32]
+        os: [linux, darwin, win32]
 
     steps:
       - name: Set up Node.js
