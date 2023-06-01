@@ -71,7 +71,7 @@ jobs:
         with:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: out/make/zip/darwin/x64/vtt-desktop-client-darwin-x64-${{ github.event.release.tag_name }}.zip
-          asset_name: vtt-desktop-client-darwin-x64-${{ github.event.release.tag_name }}.zip
+          asset_name: vtt-desktop-client-macos-x64-${{ github.event.release.tag_name }}.zip
           asset_content_type: application/zip
 
   build-windows:
