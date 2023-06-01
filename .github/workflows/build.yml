@@ -71,12 +71,44 @@ jobs:
       - name: Install dependencies
         run: yarn
 
+      - name: Debug Working Folder
+        run: |
+          echo "Working Directory: $PWD"
+          echo "Folder Contents:"
+          ls -la
+
+      - run: zip -r vtt-desktop-client-linux.zip out/
+
+      - name: Upload Linux Artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./vtt-desktop-client-linux.zip
+          asset_name: vtt-desktop-client-linux
+          asset_content_type: application/octet-stream
+
+      - run: zip -r vtt-desktop-client-macos.zip out/
+
+      - name: Upload macOS Artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./vtt-desktop-client-macos.zip
+          asset_name: vtt-desktop-client-macos
+          asset_content_type: application/octet-stream
+
+      - run: zip -r vtt-desktop-client-windows.zip out/
+
       - name: Upload Windows Artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: "./out/make/squirrel.windows/x64/vtt-desktop-client-1.3.0 Setup.exe"
+          asset_path: ./vtt-desktop-client-windows.zip
           asset_name: vtt-desktop-client-windows.exe
           asset_content_type: application/octet-stream
