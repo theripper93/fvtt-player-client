@@ -3,6 +3,7 @@ const path = require("path");
 const fs = require("fs");
 
 app.commandLine.appendSwitch("force_high_performance_gpu");
+app.commandLine.appendSwitch("enable-features", "SharedArrayBuffer");
 
 /* Remove the comment (//) from the line below to ignore certificate errors (useful for self-signed certificates) */
 
@@ -32,6 +33,13 @@ const createWindow = () => {
 
 app.whenReady().then(() => {
     createWindow();
+    win.webContents.on('before-input-event', (event, input) => {
+        if (input.key === 'F12') {
+            win.webContents.toggleDevTools();
+          event.preventDefault();
+        }
+    });
+    win.webContents.openDevTools();
     win.webContents.on("did-finish-load", () => {
         const userData = getLoginDetails(gameId);
         if(!userData.user) return;
@@ -59,6 +67,7 @@ app.whenReady().then(() => {
 
         `);
     });
+
 });
 
 ipcMain.on("open-game", (e, gId) => {
