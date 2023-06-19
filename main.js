@@ -39,7 +39,6 @@ app.whenReady().then(() => {
           event.preventDefault();
         }
     });
-    win.webContents.openDevTools();
     win.webContents.on("did-finish-load", () => {
         const userData = getLoginDetails(gameId);
         if(!userData.user) return;
