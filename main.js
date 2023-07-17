@@ -37,6 +37,12 @@ app.whenReady().then(() => {
         if (input.key === 'F12') {
             win.webContents.toggleDevTools();
           event.preventDefault();
+        } else  if (input.key === 'F5') {
+            win.webContents.reload()
+            event.preventDefault();
+        } else  if (input.key === 'F5' && input.control) {
+            win.webContents.reloadIgnoringCache()
+            event.preventDefault();
         }
     });
     win.webContents.on("did-finish-load", () => {

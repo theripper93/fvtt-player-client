@@ -104,7 +104,7 @@ button:hover {
 }
 
 .hidden {
-    height: 0px !important;
+    height: 0 !important;
 }
 
 .user-configuration {
@@ -140,8 +140,7 @@ button:hover {
     font-size: 1rem;
     font-weight: 700;
     padding: 0.2rem;
-    margin: 0;
-    margin-left: auto;
+    margin: 0 0 0 auto;
     transition: all 0.3s ease-in-out;
     cursor: pointer;
 }
