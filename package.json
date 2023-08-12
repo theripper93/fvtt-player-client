@@ -5,6 +5,7 @@
   "license": "MIT",
   "description": "VTT Desktop Client",
   "main": "main.js",
+  "productName": "VTT Desktop Client",
   "author": "theripper93",
   "contributors": [
     {

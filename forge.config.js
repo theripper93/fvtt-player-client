@@ -4,7 +4,9 @@ module.exports = {
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
-      config: {},
+      config: {
+        title: "VTT Desktop Client"
+      },
     },
     {
       name: '@electron-forge/maker-zip',
