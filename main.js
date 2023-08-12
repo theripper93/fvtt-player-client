@@ -2,6 +2,8 @@ const { app, BrowserWindow, globalShortcut, ipcMain, safeStorage } = require("el
 const path = require("path");
 const fs = require("fs");
 
+if(require('electron-squirrel-startup')) return;
+
 app.commandLine.appendSwitch("force_high_performance_gpu");
 app.commandLine.appendSwitch("enable-features", "SharedArrayBuffer");
 
