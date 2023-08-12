@@ -30,8 +30,8 @@ async function createGameList() {
     gameListJson.forEach((game) => {
         const li = document.createElement("li");
         li.classList.add("game-item");
-        li.innerHTML = `<div class="game-title-bar"><a>${game.name}</a> <button data-game-id="${game.id}" class="configure-game"><i class="fa-solid fa-gear"></i></button><div>`;
-        li.querySelector("a").onmousedown = (e) => {
+        li.innerHTML = `<div class="game-title-bar"><a>${game.name}</a> <button data-game-id="${game.id}" class="configure-game"><i class="fa-solid fa-gear"></i></button></div>`;
+        li.querySelector(".game-title-bar").onmousedown = (e) => {
             if (e.button === 0) {
                 window.api.send("open-game", game.id ?? game.name);
                 window.location.href = game.url;
