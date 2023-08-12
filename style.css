@@ -91,7 +91,7 @@ button:hover {
     justify-content: center;
     align-items: center;
     margin: 0.5rem 0;
-    padding: 0.5rem;
+    /*padding: 0.5rem;*/
     background-color: transparent;
     border: 2px solid var(--color-text-primary);
     color: var(--color-text-primary);
@@ -127,6 +127,18 @@ button:hover {
     transition: all 0.3s ease-in-out;
 }
 
+.game-button {
+    cursor: pointer;
+    flex-grow: 1;
+    text-align: left;
+    border: none;
+    padding: 0.5rem;
+    margin: 0;
+}
+.game-button:hover {
+    border: none;
+}
+
 .game-title-bar{
     display: flex;
     width: 100%;
@@ -140,7 +152,7 @@ button:hover {
     font-size: 1rem;
     font-weight: 700;
     padding: 0.2rem;
-    margin: 0 0 0 auto;
+    margin: 0 0.5rem 0 auto;
     transition: all 0.3s ease-in-out;
     cursor: pointer;
 }

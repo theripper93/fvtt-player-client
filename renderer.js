@@ -4,7 +4,7 @@ document.querySelector("#add-game").addEventListener("click", () => {
     if (!gameUrl || !gameName) return alert("Please enter a game name and url");
     const gameList = window.localStorage.getItem("gameList") || "[]";
     const gameListJson = JSON.parse(gameList);
-    gameListJson.push({ name: gameName, url: gameUrl, id: Math.round(Math.random() * 1000000) });
+    gameListJson.push({name: gameName, url: gameUrl, id: Math.round(Math.random() * 1000000)});
     window.localStorage.setItem("gameList", JSON.stringify(gameListJson));
     document.querySelector("#game-url").value = "";
     document.querySelector("#game-name").value = "";
@@ -12,7 +12,7 @@ document.querySelector("#add-game").addEventListener("click", () => {
 });
 
 async function createGameList() {
-    let config = { games: [] };
+    let config = {games: []};
     try {
         config = await fetch("config.json").then((res) => res.json());
     } catch (e) {
@@ -30,13 +30,11 @@ async function createGameList() {
     gameListJson.forEach((game) => {
         const li = document.createElement("li");
         li.classList.add("game-item");
-        li.innerHTML = `<div class="game-title-bar"><a>${game.name}</a> <button data-game-id="${game.id}" class="configure-game"><i class="fa-solid fa-gear"></i></button></div>`;
-        li.querySelector(".game-title-bar").onmousedown = (e) => {
-            if (e.button === 0) {
-                window.api.send("open-game", game.id ?? game.name);
-                window.location.href = game.url;
-            }
-        };
+        li.innerHTML = `<div class="game-title-bar"><button class="game-button"><a>${game.name}</a></button> <button data-game-id="${game.id}" class="configure-game"><i class="fa-solid fa-gear"/></button></div>`;
+        li.querySelector(".game-button").addEventListener("click", (e) => {
+            window.api.send("open-game", game.id ?? game.name);
+            window.location.href = game.url;
+        });
         ul.appendChild(li);
         li.querySelector(".configure-game").addEventListener("click", (e) => {
             e.target.closest(".game-item").querySelector(".user-configuration").classList.toggle("hidden");
@@ -71,7 +69,7 @@ async function createGameList() {
             e.target.closest(".user-configuration").classList.add("hidden");
             const user = e.target.closest(".user-configuration").querySelector("#user-name").value;
             const password = e.target.closest(".user-configuration").querySelector("#user-password").value;
-            window.api.send("save-user-data", { gameId, user, password });
+            window.api.send("save-user-data", {gameId, user, password});
         });
     });
 }
