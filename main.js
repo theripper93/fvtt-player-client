@@ -46,7 +46,6 @@ app.whenReady().then(() => {
     win.webContents.on("did-finish-load", () => {
         const userData = getLoginDetails(gameId);
         if (!userData.user) return;
-        console.log("hhhhhhhhhhhh", win);
         win.webContents.executeJavaScript(`
             async function waitForLoad() {
                 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -84,7 +83,6 @@ app.whenReady().then(() => {
                     });
                     html.find('#settings-access').append(serverSelectButton);
                 });
-                console.log("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
             `);
 
         })
@@ -96,7 +94,6 @@ ipcMain.on("open-game", (e, gId) => {
     gameId = gId;
 });
 ipcMain.on("return-select", (e) => {
-    console.log("hhhhhhhhhh");
     win.loadFile("index.html");
 });
 
