@@ -14,7 +14,7 @@ window.addEventListener("DOMContentLoaded", () => {
 contextBridge.exposeInMainWorld("api", {
     send: (channel, data) => {
         // whitelist channels
-        let validChannels = ["toMain", "open-game", "save-user-data"];
+        let validChannels = ["toMain", "open-game", "save-user-data", "return-select"];
         if (validChannels.includes(channel)) {
             ipcRenderer.send(channel, data);
         }
