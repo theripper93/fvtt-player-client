@@ -20,24 +20,25 @@
   ],
   "devDependencies": {
     "@electron-forge/cli": "latest",
-    "@electron-forge/maker-deb": "^6.3.0",
-    "@electron-forge/maker-rpm": "^6.3.0",
-    "@electron-forge/maker-squirrel": "^6.3.0",
-    "@electron-forge/maker-zip": "^6.3.0",
-    "@electron-forge/maker-flatpak": "^6.3.0",
-    "electron": "^25.4.0",
-    "electron-builder": "^24.6.3"
+    "@electron-forge/maker-deb": "latest",
+    "@electron-forge/maker-flatpak": "latest",
+    "@electron-forge/maker-rpm": "latest",
+    "@electron-forge/maker-squirrel": "latest",
+    "@electron-forge/maker-zip": "latest",
+    "@electron-forge/plugin-local-electron": "latest",
+    "electron": "25.6.0",
+    "electron-builder": "latest"
   },
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "build": "electron-forge make",
-    "make:linux": "electron-builder --linux",
+    "make:linux": "electron-builder --linux -c.electronDist=/usr/lib/electron -c.electronVersion=$(cat /usr/lib/electron/version)",
     "make:windows": "electron-forge make --platform win32"
   },
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.0"
+    "electron-squirrel-startup": "latest"
   },
   "build": {
     "publish": {
