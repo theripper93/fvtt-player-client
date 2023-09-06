@@ -4,6 +4,7 @@ const fs = require("fs");
 
 app.commandLine.appendSwitch("force_high_performance_gpu");
 app.commandLine.appendSwitch("enable-features", "SharedArrayBuffer");
+app.commandLine.appendSwitch("password-store", "gnome");
 
 /* Remove the comment (//) from the line below to ignore certificate errors (useful for self-signed certificates) */
 
@@ -48,18 +49,20 @@ app.whenReady().then(() => {
         win.webContents.executeJavaScript(`
             async function waitForLoad() {
                 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-                while (!document.querySelector('select[name="userid"]')) {
+                while (!document.querySelector('select[name="userid"]') && !document.querySelector('input[name="adminPassword"]')) {
                     await wait(100);
                 }
                 login();
             }
             
             function login() {
+                document.querySelector('input[name="adminPassword"]').value = "${userData.adminPassword}";
                 const select = document.querySelector('select[name="userid"]');
                 select.querySelectorAll("option").forEach(opt => {
                     opt.selected = opt.innerText === "${userData.user}";
                 });
                 document.querySelector('input[name="password"]').value = "${userData.password}";
+                
                 const fakeEvent = {
                     preventDefault: () => {
                     }, target: document.getElementById("join-game")
@@ -72,11 +75,16 @@ app.whenReady().then(() => {
         `);
 
         win.webContents.on("did-start-navigation", (e) => {
-            if (e.isSameDocument) return
-            if (e.url.startsWith("about")) return
+            if (e.isSameDocument) return;
+            if (e.url.startsWith("about")) return;
+            console.log("event", e);
             win.webContents.executeJavaScript(`
+                // Fix Popouts
+                Object.defineProperty(navigator, "userAgent", {value: navigator.userAgent.replace("Electron", "")})
+                // Add back button
                 Hooks.on('renderSettings', function (settings, html) {
-                    const serverSelectButton = $(\`<button data-action="home"><i class="fas fa-server"></i>Return to Server Select</button>\`);
+                    if(html.find('#server-button').length > 0) return;
+                    const serverSelectButton = $(\`<button id="server-button" data-action="home"><i class="fas fa-server"></i>Return to Server Select</button>\`);
                     serverSelectButton.on('click', () => {
                     window.api.send("return-select");
                     });
@@ -97,8 +105,8 @@ ipcMain.on("return-select", (e) => {
 });
 
 ipcMain.on("save-user-data", (e, data) => {
-    const {gameId, password, user} = data;
-    saveUserData(gameId, {password: Array.from(safeStorage.encryptString(password)), user});
+    const {gameId, password, user, adminPassword} = data;
+    saveUserData(gameId, {password: Array.from(safeStorage.encryptString(password)), user, adminPassword: Array.from(safeStorage.encryptString(adminPassword))});
 });
 
 function getUserData() {
@@ -112,15 +120,18 @@ function getUserData() {
 
 function getLoginDetails(gameId) {
     const userData = getUserData()[gameId];
-    if (!userData) return {user: "", password: ""};
-    const password = new Uint8Array(userData.password);
+    if (!userData) return {user: "", password: "", adminPassword: ""};
+    const password = new Uint8Array(userData.password);7
+    const adminPassword = new Uint8Array(userData.adminPassword);
     return {
-        user: userData.user, password: safeStorage.decryptString(password),
+        user: userData.user, password: safeStorage.decryptString(password), adminPassword: safeStorage.decryptString(adminPassword),
     };
 }
 
 function saveUserData(gameId, data) {
+    console.log(data);
     const currentData = getUserData();
     const newData = {...currentData, [gameId]: data};
+    console.log(newData);
     fs.writeFileSync(path.join(app.getPath("userData"), "userData.json"), JSON.stringify(newData));
 }

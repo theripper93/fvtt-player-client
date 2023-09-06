@@ -48,6 +48,10 @@ async function createGameList() {
             <div class="user-password-field">
                 <input type="password" placeholder="Password" id="user-password" value="${game.password || ""}">
             </div>
+            <div class="admin-password-field">
+                <input type="password" placeholder="Admin Password" id="admin-password" value="${game.adminPassword || ""}">
+            </div>
+            
             <div class="button-group">
             <button id="save-user-data">Save</button>
             <button id="delete-game">Delete</button>
@@ -69,7 +73,8 @@ async function createGameList() {
             e.target.closest(".user-configuration").classList.add("hidden");
             const user = e.target.closest(".user-configuration").querySelector("#user-name").value;
             const password = e.target.closest(".user-configuration").querySelector("#user-password").value;
-            window.api.send("save-user-data", {gameId, user, password});
+            const adminPassword = e.target.closest(".user-configuration").querySelector("#admin-password").value;
+            window.api.send("save-user-data", {gameId, user, password, adminPassword});
         });
     });
 }
