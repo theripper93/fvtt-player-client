@@ -27,7 +27,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ github.event.release.url }}
+          upload_url: ${{ github.event.release.upload_url }}
           asset_path: out/make/deb/x64/vtt-desktop-client_${{ github.event.release.tag_name }}_amd64.deb
           asset_name: vtt-desktop-client_${{ github.event.release.tag_name }}_amd64.deb
           asset_content_type: application/zip
@@ -37,7 +37,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ github.event.release.url }}
+          upload_url: ${{ github.event.release.upload_url }}
           asset_path: out/make/rpm/x64/vtt-desktop-client-${{ github.event.release.tag_name }}-1.x86_64.rpm
           asset_name: vtt-desktop-client-${{ github.event.release.tag_name }}-1.x86_64.rpm
           asset_content_type: application/zip
@@ -69,7 +69,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ github.event.release.url }}
+          upload_url: ${{ github.event.release.upload_url }}
           asset_path: out/make/zip/darwin/x64/vtt-desktop-client-darwin-x64-${{ github.event.release.tag_name }}.zip
           asset_name: vtt-desktop-client-macos-x64-${{ github.event.release.tag_name }}.zip
           asset_content_type: application/zip
@@ -105,7 +105,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ github.event.release.url }}
+          upload_url: ${{ github.event.release.upload_url }}
           asset_path: out/win64.zip
           asset_name: vtt-desktop-client-windows-x64-${{ github.event.release.tag_name }}.zip
           asset_content_type: application/zip
