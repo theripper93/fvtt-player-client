@@ -23,10 +23,19 @@ const createWindow = () => {
             enableRemoteModule: false,
         },
     });
+    win.webContents.setWindowOpenHandler((details) => {
+        return {
+            action: 'allow',
+            overrideBrowserWindowOptions: {
+                autoHideMenuBar: true
+            }
+        }
+    });
     win.menuBarVisible = false;
     win.loadFile("index.html");
     win.maximize();
     win.show();
+
 };
 
 app.whenReady().then(() => {
