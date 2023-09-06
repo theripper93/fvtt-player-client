@@ -4,7 +4,7 @@ const fs = require("fs");
 
 app.commandLine.appendSwitch("force_high_performance_gpu");
 app.commandLine.appendSwitch("enable-features", "SharedArrayBuffer");
-app.commandLine.appendSwitch("password-store", "gnome");
+
 
 /* Remove the comment (//) from the line below to ignore certificate errors (useful for self-signed certificates) */
 
