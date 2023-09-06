@@ -37,6 +37,13 @@ jobs:
           asset_path: out/make/rpm/x64/vtt-desktop-client-${{ github.event.release.tag_name }}-1.x86_64.rpm
           asset_name: vtt-desktop-client-${{ github.event.release.tag_name }}-1.x86_64.rpm
           asset_content_type: application/zip
+      - name: Upload Zip to Release 3
+        uses: shogo82148/actions-upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: out/make/zip/linux/x64/vtt-desktop-client-linux-x64-${{ github.event.release.tag_name }}.zip
+          asset_name: vtt-desktop-client-linux-x64-${{ github.event.release.tag_name }}.zip
+          asset_content_type: application/zip
 
   build-macos:
     runs-on: macos-latest
