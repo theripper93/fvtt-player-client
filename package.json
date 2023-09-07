@@ -51,12 +51,5 @@
   },
   "dependencies": {
     "electron-squirrel-startup": "latest"
-  },
-  "build": {
-    "publish": {
-      "provider": "github",
-      "owner": "theripper93",
-      "repo": "fvtt-player-client"
-    }
   }
 }

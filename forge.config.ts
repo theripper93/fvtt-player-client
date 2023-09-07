@@ -15,15 +15,15 @@ const config: ForgeConfig = {
         new MakerZIP({}),
         new MakerRpm({}),
         new MakerDeb({}),
-        new MakerFlatpak({
-            options: {
-                categories: ['Game', 'Network'],
-                description: "VTT Desktop Client",
-                productName: "VTT Desktop Client",
-                id: "com.theripper93.vtt-desktop-client",
-                files: []
-            }
-        }),
+        // new MakerFlatpak({
+        //     options: {
+        //         categories: ['Game', 'Network'],
+        //         description: "VTT Desktop Client",
+        //         productName: "VTT Desktop Client",
+        //         id: "com.theripper93.vtt-desktop-client",
+        //         files: []
+        //     }
+        // }),
         new MakerDMG({}),
     ],
     plugins: [
