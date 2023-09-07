@@ -16,11 +16,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+#      - name: install maker-flatpak dependencies
+#        run: |
+#          sudo apt-get install flatpak -y
+#          sudo apt-get install flatpak-builder -y
+#          sudo apt-get install elfutils -y
+#          sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+#          sudo flatpak install flathub org.freedesktop.Platform/x86_64/19.08 org.freedesktop.Sdk/x86_64/19.08 org.electronjs.Electron2.BaseApp/x86_64/stable -y
+
       - name: Install dependencies
         run: yarn
 
       - name: Build for Linux
         run: yarn make --platform linux
+
+
 
       - name: Upload Zip to Release
         uses: shogo82148/actions-upload-release-asset@v1
@@ -44,6 +54,16 @@ jobs:
           asset_path: out/make/zip/linux/x64/vtt-desktop-client-linux-x64-${{ github.event.release.tag_name }}.zip
           asset_name: vtt-desktop-client-linux-x64-${{ github.event.release.tag_name }}.zip
           asset_content_type: application/zip
+
+#      - name: Upload to Flathub
+#        uses: flatpak/flatpak-github-actions/flat-manager@v4
+#        with:
+#          repository: elementary
+#          flat-manager-url: https://flatpak-api.elementary.io
+#          token: some_very_hidden_token
+#          end-of-life: "The application has been renamed to..."
+#          end-of-life-rebase: "org.zbrown.Palette"
+
 
   build-macos:
     runs-on: macos-latest
