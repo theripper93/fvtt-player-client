@@ -98,8 +98,8 @@ jobs:
         uses: shogo82148/actions-upload-release-asset@v1
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: out/macos.zip
-          asset_name: macos.zip
+          asset_path: out/make/vtt-desktop-client-1.3.6-x64.dmg
+          asset_name: vtt-desktop-client-1.3.6-x64.dmg
           asset_content_type: application/zip
 
   build-windows:
