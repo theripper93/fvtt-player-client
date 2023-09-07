@@ -94,6 +94,13 @@ jobs:
           asset_path: out/make/zip/darwin/x64/vtt-desktop-client-darwin-x64-${{ github.event.release.tag_name }}.zip
           asset_name: vtt-desktop-client-macos-x64-${{ github.event.release.tag_name }}.zip
           asset_content_type: application/zip
+      - name: Upload Zip to Release 2
+        uses: shogo82148/actions-upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: out/macos.zip
+          asset_name: macos.zip
+          asset_content_type: application/zip
 
   build-windows:
     runs-on: windows-latest
