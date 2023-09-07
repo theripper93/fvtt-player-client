@@ -88,26 +88,6 @@ app.whenReady().then(() => {
             waitForLoad();
 
         `);
-
-        win.webContents.on("did-start-navigation", (e) => {
-            if (e.isSameDocument) return;
-            if (e.url.startsWith("about")) return;
-            console.log("event", e);
-            win.webContents.executeJavaScript(`
-                // Fix Popouts
-                Object.defineProperty(navigator, "userAgent", {value: navigator.userAgent.replace("Electron", "")})
-                // Add back button
-                Hooks.on('renderSettings', function (settings, html) {
-                    if(html.find('#server-button').length > 0) return;
-                    const serverSelectButton = $(\`<button id="server-button" data-action="home"><i class="fas fa-server"></i>Return to Server Select</button>\`);
-                    serverSelectButton.on('click', () => {
-                    window.api.send("return-select");
-                    });
-                    html.find('#settings-access').append(serverSelectButton);
-                });
-            `);
-
-        })
     });
 
 });
