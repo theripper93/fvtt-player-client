@@ -10,6 +10,7 @@ document.querySelector("#add-game").addEventListener("click", () => {
     window.localStorage.setItem("gameList", JSON.stringify(gameListJson));
     (document.querySelector("#game-url")  as HTMLInputElement).value = "";
     (document.querySelector("#game-name")  as HTMLInputElement).value = "";
+    createGameList();
 });
 
 async function createGameList() {
@@ -24,6 +25,7 @@ async function createGameList() {
     if (config.backgroundColor) document.documentElement.style.setProperty("--color-background", config.backgroundColor);
     if (config.accentColor) document.documentElement.style.setProperty("--color-accent", config.accentColor);
     const ul = document.querySelector("#game-list");
+    ul.childNodes.forEach((value) => value.remove());
     ul.innerHTML = "";
     const gameList = window.localStorage.getItem("gameList") || "[]";
     let gameListJson: GameConfig[] = JSON.parse(gameList);
