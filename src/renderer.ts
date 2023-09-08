@@ -9,7 +9,8 @@ document.querySelector("#add-game").addEventListener("click", () => {
     gameListJson.push({name: gameName, url: gameUrl, id: Math.round(Math.random() * 1000000)});
     window.localStorage.setItem("gameList", JSON.stringify(gameListJson));
     (document.querySelector("#game-url")  as HTMLInputElement).value = "";
-    (document.querySelector("#game-name")  as HTMLInputElement).value = "";
+    (document.querySelector("#game-name") as HTMLInputElement).value = "";
+    createGameList();
 });
 
 async function createGameList() {
