@@ -27,10 +27,15 @@ const createWindow = () => {
         return {
             action: 'allow',
             overrideBrowserWindowOptions: {
-                autoHideMenuBar: true
+                parent: win,
+                autoHideMenuBar: true,
+                modal: true,
+                webPreferences: {
+                }
             }
         }
     });
+
     win.menuBarVisible = false;
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
         win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
