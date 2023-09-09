@@ -3,7 +3,6 @@ on:
   release:
     types:
       - created
-
 jobs:
   build-linux:
     runs-on: ubuntu-latest

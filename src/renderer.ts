@@ -1,5 +1,4 @@
 import './style.css';
-console.log("test");
 document.querySelector("#add-game").addEventListener("click", () => {
     const gameUrl = (document.querySelector("#game-url")  as HTMLInputElement).value;
     const gameName = (document.querySelector("#game-name")  as HTMLInputElement).value;
