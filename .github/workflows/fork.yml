@@ -5,6 +5,7 @@ on:
       - "1.*"
 jobs:
   fork:
+    if: github.repository_owner == 'OmegaRogue'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
