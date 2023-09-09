@@ -13,6 +13,6 @@ jobs:
         uses: devmasx/merge-branch@master
         with:
           type: now
-          from_branch: fork
+          from_branch: main
           target_branch: pull-request-no-injection
           github_token: ${{ secrets.GITHUB_TOKEN }}
