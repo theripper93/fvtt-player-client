@@ -1,5 +1,4 @@
 import './style.css';
-console.log("test");
 document.querySelector("#add-game").addEventListener("click", () => {
     const gameUrl = (document.querySelector("#game-url")  as HTMLInputElement).value;
     const gameName = (document.querySelector("#game-name")  as HTMLInputElement).value;
@@ -9,7 +8,7 @@ document.querySelector("#add-game").addEventListener("click", () => {
     gameListJson.push({name: gameName, url: gameUrl, id: Math.round(Math.random() * 1000000)});
     window.localStorage.setItem("gameList", JSON.stringify(gameListJson));
     (document.querySelector("#game-url")  as HTMLInputElement).value = "";
-    (document.querySelector("#game-name") as HTMLInputElement).value = "";
+    (document.querySelector("#game-name")  as HTMLInputElement).value = "";
     createGameList();
 });
 
@@ -25,6 +24,7 @@ async function createGameList() {
     if (config.backgroundColor) document.documentElement.style.setProperty("--color-background", config.backgroundColor);
     if (config.accentColor) document.documentElement.style.setProperty("--color-accent", config.accentColor);
     const ul = document.querySelector("#game-list");
+    ul.childNodes.forEach((value) => value.remove());
     ul.innerHTML = "";
     const gameList = window.localStorage.getItem("gameList") || "[]";
     let gameListJson: GameConfig[] = JSON.parse(gameList);
