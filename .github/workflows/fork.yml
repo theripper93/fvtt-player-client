@@ -1,0 +1,18 @@
+name: Merge to fork
+on:
+  push:
+    tags:
+      - "1.*"
+jobs:
+  fork:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Merge Fork
+        uses: devmasx/merge-branch@master
+        with:
+          type: now
+          from_branch: fork
+          target_branch: pull-request-no-injection
+          github_token: ${{ secrets.GITHUB_TOKEN }}
