@@ -34,3 +34,5 @@ type GameUserDataDecrypted = {
     user: string;
     adminPassword?: string;
 }
+
+type SaveUserData = { gameId: number | string; password: string; user: string; adminPassword: string };

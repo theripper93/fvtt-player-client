@@ -1,5 +1,39 @@
 import './style.css';
 
+let appVersion: string;
+
+
+window.api.receive("app-version", async (version) => {
+    appVersion = version;
+
+    document.querySelector("#current-version").textContent = appVersion;
+
+    const latestVersion: string = (await (await fetch("https://api.github.com/repos/OmegaRogue/fvtt-player-client/releases/latest", {mode: "cors"})).json())["tag_name"];
+    document.querySelector("#latest-version").textContent = latestVersion;
+    if (compareSemver(appVersion, latestVersion) < 0) {
+        document.querySelector(".update-available").classList.remove("hidden2");
+    }
+});
+
+
+function compareSemver(a: string, b: string): number {
+    const splitA = a.split(".");
+    const splitB = b.split(".");
+
+    let currentA, currentB: number;
+    for (let i = 0; i < splitA.length; i++) {
+        currentA = Number(splitA[0]);
+        currentB = Number(splitB[0]);
+        if (currentA > currentB) {
+            return 1;
+        } else if (currentA < currentB) {
+            return -1;
+        }
+    }
+    return 0
+}
+
+
 document.querySelector("#add-game").addEventListener("click", () => {
     const gameUrlField = document.querySelector("#game-url") as HTMLInputElement;
     const gameNameField = document.querySelector("#game-name") as HTMLInputElement;
@@ -19,6 +53,22 @@ document.querySelector("#add-game").addEventListener("click", () => {
 
 const gameItemList = document.querySelector("#game-list");
 const gameItemTemplate = document.querySelector("template").content.querySelector("li");
+
+
+document.querySelector("#save-app-config").addEventListener("click", (e) => {
+    if (!(e.target instanceof Element))
+        return;
+    e.target.closest(".app-configuration").classList.add("hidden2");
+    const closeUserConfig = e.target.closest(".app-configuration") as HTMLDivElement;
+    const background = (closeUserConfig.querySelector("#background-image") as HTMLInputElement).value;
+    const accentColor = (closeUserConfig.querySelector("#accent-color") as HTMLInputElement).value;
+    const backgroundColor = (closeUserConfig.querySelector("#background-color") as HTMLInputElement).value;
+    const textColor = (closeUserConfig.querySelector("#text-color") as HTMLInputElement).value;
+    const config = {accentColor, backgroundColor, background, textColor} as AppConfig;
+    window.localStorage.setItem("appConfig", JSON.stringify(config));
+    applyAppConfig(config);
+    // window.api.send("save-user-data", {gameId, user, password, adminPassword});
+});
 
 async function createGameItem(game: GameConfig) {
     const li = document.importNode(gameItemTemplate, true);
@@ -47,30 +97,64 @@ async function createGameItem(game: GameConfig) {
         const user = (closeUserConfig.querySelector("#user-name") as HTMLInputElement).value;
         const password = (closeUserConfig.querySelector("#user-password") as HTMLInputElement).value;
         const adminPassword = (closeUserConfig.querySelector("#admin-password") as HTMLInputElement).value;
-        window.api.send("save-user-data", {gameId, user, password, adminPassword});
+        console.log({gameId, user, password, adminPassword})
+        window.api.send("save-user-data", {gameId, user, password, adminPassword} as SaveUserData);
     });
 }
+
+function applyAppConfig(config: AppConfig) {
+    (document.querySelector("#accent-color") as HTMLInputElement).value = "#f77f00";
+    (document.querySelector("#background-color") as HTMLInputElement).value = "#003049";
+    (document.querySelector("#text-color") as HTMLInputElement).value = "#eae2b7";
+    if (config.background) {
+        document.body.style.backgroundImage = `url(${config.background})`;
+        (document.querySelector("#background-image") as HTMLInputElement).value = config.background;
+    }
+    if (config.textColor) {
+        document.documentElement.style.setProperty("--color-text-primary", config.textColor);
+        (document.querySelector("#text-color") as HTMLInputElement).value = config.textColor.substring(0, 7);
+    }
+    if (config.backgroundColor) {
+        document.documentElement.style.setProperty("--color-background", config.backgroundColor);
+        (document.querySelector("#background-color") as HTMLInputElement).value = config.backgroundColor.substring(0, 7);
+    }
+    if (config.accentColor) {
+        document.documentElement.style.setProperty("--color-accent", config.accentColor);
+        (document.querySelector("#accent-color") as HTMLInputElement).value = config.accentColor.substring(0, 7);
+    }
+}
+
 async function createGameList() {
     let config: AppConfig;
     try {
-        config = await fetch("config.json").then((res) => res.json());
+        config = await fetch("config.json").then((res) => {
+            return res.json();
+        }) as AppConfig;
     } catch (e) {
         console.log("Failed to load config.json");
     }
-    if (config.background) document.body.style.backgroundImage = `url(${config.background})`;
-    if (config.textColor) document.documentElement.style.setProperty("--color-text-primary", config.textColor);
-    if (config.backgroundColor) document.documentElement.style.setProperty("--color-background", config.backgroundColor);
-    if (config.accentColor) document.documentElement.style.setProperty("--color-accent", config.accentColor);
+    config = {...config, ...(JSON.parse(window.localStorage.getItem("appConfig") || "{}") as AppConfig)}
+
+
+    applyAppConfig(config);
+
+    window.api.send("app-version");
+
+
     gameItemList.childNodes.forEach((value) => {
             if (value.nodeName === "template")
                 return;
             value.remove();
         }
     );
+
     const gameList = window.localStorage.getItem("gameList") || "[]";
     let gameListJson: GameConfig[] = JSON.parse(gameList);
     gameListJson = [...config.games, ...gameListJson];
     gameListJson.forEach(createGameItem);
 }
 
+while (!window) {
+    //
+}
 createGameList();
