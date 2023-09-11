@@ -7,12 +7,39 @@
     <title>VTT Desktop Client</title>
     <script src="https://kit.fontawesome.com/d9351ab632.js" crossorigin="anonymous"></script>
 </head>
-
 <body>
-
-    <div class="content">
+<script>
+    function toggleConfigureGame(e) {
+        e.target.closest('.game-item').querySelector('.user-configuration').classList.toggle('hidden');
+    }
+</script>
+<div class="content">
     <ul id="game-list">
+        <template id="game-item-template">
+            <li class="game-item">
+                <div class="game-title-bar">
+                    <button class="game-button"><a>GameName</a></button>
+                    <button class="configure-game" onclick="toggleConfigureGame(event)"><i
+                            class="fa-solid fa-gear"></i></button>
+                </div>
+                <div class="user-configuration hidden">
+                    <div class="user-name-field">
+                        <input type="text" placeholder="User Name" id="user-name" value="">
+                    </div>
+                    <div class="user-password-field">
+                        <input type="password" placeholder="Password" id="user-password" value="">
+                    </div>
+                    <div class="admin-password-field">
+                        <input type="password" placeholder="Admin Password" id="admin-password" value="">
+                    </div>
 
+                    <div class="button-group">
+                        <button id="save-user-data">Save</button>
+                        <button id="delete-game">Delete</button>
+                    </div>
+                </div>
+            </li>
+        </template>
     </ul>
     <div id="add-game-wrapper">
         <input type="text" name="" id="game-name" placeholder="Name">
@@ -22,8 +49,7 @@
     <div id="info">Node.js <span id="node-version"></span>,
         Chromium <span id="chrome-version"></span>,
         Electron <span id="electron-version"></span></div>
-    </div>
-    <script defer type="module" src="/src/renderer.ts"></script>
+</div>
+<script type="module" src="/src/renderer.ts"></script>
 </body>
-
 </html>

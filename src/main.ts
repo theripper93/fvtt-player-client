@@ -47,7 +47,7 @@ const createWindow = () => {
 
 };
 
-
+let autoLogin = true;
 app.whenReady().then(() => {
     createWindow();
     win.webContents.on('before-input-event', (event, input) => {
@@ -63,36 +63,47 @@ app.whenReady().then(() => {
         }
     });
     win.webContents.on("did-finish-load", () => {
+        console.log("URL", win.webContents.getURL());
+        if(!win.webContents.getURL().endsWith("/join"))
+            return;
         const userData = getLoginDetails(gameId);
         if (!userData.user) return;
-        console.log("login", userData);
         win.webContents.executeJavaScript(`
             async function waitForLoad() {
                 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
                 while (!document.querySelector('select[name="userid"]') && !document.querySelector('input[name="adminPassword"]')) {
                     await wait(100);
                 }
+                console.log("logging in");
                 login();
             }
             
             function login() {
-                document.querySelector('input[name="adminPassword"]').value = "${userData.adminPassword}";
+                const adminPassword = document.querySelector('input[name="adminPassword"]');
+                if(adminPassword)
+                    adminPassword.value = "${userData.adminPassword}";
                 const select = document.querySelector('select[name="userid"]');
-                select.querySelectorAll("option").forEach(opt => {
-                    opt.selected = opt.innerText === "${userData.user}";
-                });
-                document.querySelector('input[name="password"]').value = "${userData.password}";
-                
-                const fakeEvent = {
-                    preventDefault: () => {
-                    }, target: document.getElementById("join-game")
+                if(select)
+                    select.querySelectorAll("option").forEach(opt => {
+                        opt.selected = opt.innerText === "${userData.user}";
+                    });
+                const password = document.querySelector('input[name="password"]');
+                if(password)
+                    password.value = "${userData.password}";
+                if("${autoLogin}" === "true")
+                {
+                    const fakeEvent = {
+                        preventDefault: () => {
+                        }, target: document.getElementById("join-game")
+                    }
+                    ui.join._onSubmit(fakeEvent);
                 }
-                ui.join._onSubmit(fakeEvent);
             }
             
             waitForLoad();
 
         `);
+        autoLogin = false;
 
         win.webContents.on("did-start-navigation", (e) => {
             if (e.isSameDocument) return;
@@ -121,12 +132,16 @@ ipcMain.on("open-game", (_e, gId) => {
     gameId = gId;
 });
 ipcMain.on("return-select", () => {
-    win.loadFile("index.html");
+    autoLogin = true;
+    if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+        win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+    } else {
+        win.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
+    }
 });
 
 ipcMain.on("save-user-data", (_e, data) => {
     const {gameId, password, user, adminPassword} = data;
-    console.log("numbers", Array.from(safeStorage.encryptString(password)));
     saveUserData(gameId, {password: Array.from(safeStorage.encryptString(password)), user, adminPassword: Array.from(safeStorage.encryptString(adminPassword))});
 });
 
@@ -142,7 +157,6 @@ function getUserData(): UserData {
 
 function getLoginDetails(gameId: string): GameUserDataDecrypted {
     const userData = getUserData()[gameId];
-    console.log("userData", userData, getUserData());
     if (!userData) return {user: "", password: "", adminPassword: ""};
     const password = new Uint8Array(userData.password);
     const adminPassword = new Uint8Array(userData.adminPassword);
@@ -153,7 +167,12 @@ function getLoginDetails(gameId: string): GameUserDataDecrypted {
 
 function saveUserData(gameId: string, data: GameUserData) {
     const currentData = getUserData();
+    if(currentData[gameId]) {
+        if (data.user === "") data.user = currentData[gameId].user;
+        if (data.password === []) data.password = currentData[gameId].password;
+        if (data.adminPassword === []) data.adminPassword = currentData[gameId].adminPassword;
+    }
     const newData: UserData = {...currentData, [gameId]: data};
-    console.log(newData);
     fs.writeFileSync(path.join(app.getPath("userData"), "userData.json"), JSON.stringify(newData));
 }
+

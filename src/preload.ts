@@ -3,7 +3,6 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 import {contextBridge, ipcRenderer} from 'electron';
 
-console.log("hello from preload");
 window.addEventListener("DOMContentLoaded", () => {
     const replaceText = (selector: string, text: string) => {
         const element = document.getElementById(selector);

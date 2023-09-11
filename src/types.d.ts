@@ -5,13 +5,13 @@ declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const MAIN_WINDOW_VITE_NAME: string;
 declare const api: typeof import("./api").default;
 
-interface GameConfig {
+type GameConfig = {
     name: string;
     url: string;
     id?: number;
 }
 
-interface AppConfig {
+type AppConfig = {
     games: GameConfig[];
     background: string;
     backgroundColor: string;
@@ -20,16 +20,16 @@ interface AppConfig {
 }
 
 
-interface UserData {
+type UserData = {
     [index: string]: GameUserData
 }
 
-interface GameUserData {
+type GameUserData = {
     password?: number[];
     user: string;
     adminPassword?: number[];
 }
-interface GameUserDataDecrypted {
+type GameUserDataDecrypted = {
     password?: string;
     user: string;
     adminPassword?: string;
