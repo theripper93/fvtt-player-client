@@ -8,7 +8,7 @@ window.api.receive("app-version", async (version) => {
 
     document.querySelector("#current-version").textContent = appVersion;
 
-    const latestVersion: string = (await (await fetch("https://api.github.com/repos/OmegaRogue/fvtt-player-client/releases/latest", {mode: "cors"})).json())["tag_name"];
+    const latestVersion: string = (await (await fetch("https://api.github.com/repos/theripper93/fvtt-player-client/releases/latest", {mode: "cors"})).json())["tag_name"];
     document.querySelector("#latest-version").textContent = latestVersion;
     if (compareSemver(appVersion, latestVersion) < 0) {
         document.querySelector(".update-available").classList.remove("hidden2");
