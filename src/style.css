@@ -203,9 +203,31 @@ table, th, td {
     border-collapse: collapse;
 }
 
-.help {
+.menu-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
     position: absolute;
-    right: 5em;
+    z-index: 100;
+    pointer-events: none;
+    gap: 1rem;
+}
+
+.field{
+    display: flex;
+    justify-content: space-between;
+}
+
+.help {
+    background: var(--color-background);
+    pointer-events: all;
+    box-shadow: 0 0 5px black;
+}
+
+.help td{
+    padding: 0.3rem 0.5rem;
 }
 
 .button-controls {
@@ -214,13 +236,25 @@ table, th, td {
     right: 2rem;
 }
 .app-configuration {
-    top: 5rem;
-    position: absolute;
+    box-shadow: 0 0 5px black;
     display: flex;
     flex-direction: column;
     transition: all 0.3s ease-in-out;
     border: 2px solid var(--color-text-primary);
     padding: 0.5rem;
+    background: var(--color-background);
+    pointer-events: all;
+}
+
+.update-available{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+.update-available a{
+    font-size: 1rem;
+    color: var(--color-accent);
 }
 
 .game-item:hover {
