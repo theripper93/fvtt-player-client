@@ -1,4 +1,4 @@
-import {app, BrowserWindow, ipcMain, safeStorage} from 'electron';
+import {app, BrowserWindow, ipcMain, safeStorage, shell} from 'electron';
 import path from 'path';
 import fs from 'fs';
 
@@ -21,17 +21,15 @@ const createWindow = () => {
             preload: path.join(__dirname, "preload.js"),
             nodeIntegration: false,
             contextIsolation: true,
+            webgl: true
         },
     });
-    win.webContents.setWindowOpenHandler(() => {
+    win.webContents.setWindowOpenHandler((e) => {
         return {
             action: 'allow',
             overrideBrowserWindowOptions: {
                 parent: win,
                 autoHideMenuBar: true,
-                modal: true,
-                webPreferences: {
-                }
             }
         }
     });
@@ -44,10 +42,9 @@ const createWindow = () => {
     }
     win.maximize();
     win.show();
-
 };
 
-
+let autoLogin = true;
 app.whenReady().then(() => {
     createWindow();
     win.webContents.on('before-input-event', (event, input) => {
@@ -63,9 +60,11 @@ app.whenReady().then(() => {
         }
     });
     win.webContents.on("did-finish-load", () => {
+        const url = win.webContents.getURL();
+        if (!url.endsWith("/join") && !url.endsWith("/auth"))
+            return;
         const userData = getLoginDetails(gameId);
         if (!userData.user) return;
-        console.log("login", userData);
         win.webContents.executeJavaScript(`
             async function waitForLoad() {
                 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -74,25 +73,32 @@ app.whenReady().then(() => {
                 }
                 login();
             }
-            
+
             function login() {
-                document.querySelector('input[name="adminPassword"]').value = "${userData.adminPassword}";
+                const adminPassword = document.querySelector('input[name="adminPassword"]');
+                if (adminPassword)
+                    adminPassword.value = "${userData.adminPassword}";
                 const select = document.querySelector('select[name="userid"]');
-                select.querySelectorAll("option").forEach(opt => {
-                    opt.selected = opt.innerText === "${userData.user}";
-                });
-                document.querySelector('input[name="password"]').value = "${userData.password}";
-                
-                const fakeEvent = {
-                    preventDefault: () => {
-                    }, target: document.getElementById("join-game")
+                if (select)
+                    select.querySelectorAll("option").forEach(opt => {
+                        opt.selected = opt.innerText === "${userData.user}";
+                    });
+                const password = document.querySelector('input[name="password"]');
+                if (password)
+                    password.value = "${userData.password}";
+                if ("${autoLogin}" === "true") {
+                    const fakeEvent = {
+                        preventDefault: () => {
+                        }, target: document.getElementById("join-game")
+                    }
+                    ui.join._onSubmit(fakeEvent);
                 }
-                ui.join._onSubmit(fakeEvent);
             }
-            
+
             waitForLoad();
 
         `);
+        autoLogin = false;
     });
 
 });
@@ -100,14 +106,29 @@ app.whenReady().then(() => {
 ipcMain.on("open-game", (_e, gId) => {
     gameId = gId;
 });
+
+ipcMain.on("open-game", (_e, gId) => {
+    gameId = gId;
+});
 ipcMain.on("return-select", () => {
-    win.loadFile("index.html");
+    autoLogin = true;
+    if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+        win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+    } else {
+        win.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
+    }
 });
 
-ipcMain.on("save-user-data", (_e, data) => {
+ipcMain.on("save-user-data", (_e, data: SaveUserData) => {
     const {gameId, password, user, adminPassword} = data;
-    console.log("numbers", Array.from(safeStorage.encryptString(password)));
-    saveUserData(gameId, {password: Array.from(safeStorage.encryptString(password)), user, adminPassword: Array.from(safeStorage.encryptString(adminPassword))});
+    saveUserData(gameId.toString(), {
+        password: Array.from(safeStorage.encryptString(password)),
+        user,
+        adminPassword: Array.from(safeStorage.encryptString(adminPassword))
+    });
+});
+ipcMain.on("app-version",(event) => {
+    event.sender.send("app-version", app.getVersion());
 });
 
 function getUserData(): UserData {
@@ -122,18 +143,24 @@ function getUserData(): UserData {
 
 function getLoginDetails(gameId: string): GameUserDataDecrypted {
     const userData = getUserData()[gameId];
-    console.log("userData", userData, getUserData());
     if (!userData) return {user: "", password: "", adminPassword: ""};
     const password = new Uint8Array(userData.password);
     const adminPassword = new Uint8Array(userData.adminPassword);
     return {
-        user: userData.user, password: safeStorage.decryptString(Buffer.from(password)), adminPassword: safeStorage.decryptString(Buffer.from(adminPassword)),
+        user: userData.user,
+        password: safeStorage.decryptString(Buffer.from(password)),
+        adminPassword: safeStorage.decryptString(Buffer.from(adminPassword)),
     };
 }
 
 function saveUserData(gameId: string, data: GameUserData) {
     const currentData = getUserData();
+    if (currentData[gameId]) {
+        if (data.user === "") data.user = currentData[gameId].user;
+        if (data.password.length === 0) data.password = currentData[gameId].password;
+        if (data.adminPassword.length === 0) data.adminPassword = currentData[gameId].adminPassword;
+    }
     const newData: UserData = {...currentData, [gameId]: data};
-    console.log(newData);
     fs.writeFileSync(path.join(app.getPath("userData"), "userData.json"), JSON.stringify(newData));
 }
+

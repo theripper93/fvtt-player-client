@@ -34,7 +34,7 @@ body {
     overflow-y: auto;
 }
 
-input {
+input:not([type=color], [type=checkbox]) {
     background-color: transparent;
     backdrop-filter: blur(5px);
     border: none;
@@ -46,6 +46,87 @@ input {
     margin: 0.5rem;
     outline: none;
     transition: all 0.3s ease-in-out;
+}
+
+input[type=checkbox] {
+    position: absolute;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+}
+
+input[type=checkbox]:checked:before {
+    display: block;
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    border: 4px solid #FFCB9A;
+    background-color: #445768;
+}
+
+
+input[type=checkbox]:before {
+    display: block;
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    border: 4px solid #FFCB9A;
+    background-color: #445768;
+}
+
+
+input[type=checkbox]:after {
+    display: block;
+    width: 30px;
+    height: 30px;
+    border: solid #FFCB9A;
+    border-width: 0 0px 0px 0;
+    position: absolute;
+    top: 0px;
+    left: 50px;
+}
+
+input[type=checkbox]:checked:after {
+    display: block;
+    width: 12px;
+    height: 21px;
+    border: solid #FFCB9A;
+    border-width: 0 5px 5px 0;
+    position: absolute;
+    top: 2px;
+    left: 14px;
+}
+
+label {
+    background-color: transparent;
+    backdrop-filter: blur(5px);
+    color: var(--color-text-primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/*input[type=color] {*/
+/*    border-bottom: none !important;*/
+/*    background-color: transparent;*/
+/*    outline: none;*/
+/*    background: none;*/
+/*}*/
+input[type=color] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 3em;
+    height: 3em;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+input[type=color]::-webkit-color-swatch {
+    border: none;
+}
+
+input[type=color]::-moz-color-swatch {
+    border: none;
 }
 
 input:focus {
@@ -107,14 +188,52 @@ button:hover {
     height: 0 !important;
 }
 
+.hidden2 {
+    display: none !important;
+}
+
 .user-configuration {
     display: flex;
     flex-direction: column;
     transition: all 0.3s ease-in-out;
 }
 
+table, th, td {
+    border: 1px solid;
+    border-collapse: collapse;
+}
+
+.help {
+    position: absolute;
+    right: 5em;
+}
+
+.button-controls {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+}
+.app-configuration {
+    top: 5rem;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease-in-out;
+    border: 2px solid var(--color-text-primary);
+    padding: 0.5rem;
+}
+
 .game-item:hover {
     border: 2px solid var(--color-accent);
+}
+
+a {
+    text-decoration: none;
+    cursor: pointer;
+    color: var(--color-text-primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+    transition: all 0.3s ease-in-out;
 }
 
 .game-item a {
@@ -135,11 +254,12 @@ button:hover {
     padding: 0.5rem;
     margin: 0;
 }
+
 .game-button:hover {
     border: none;
 }
 
-.game-title-bar{
+.game-title-bar {
     display: flex;
     width: 100%;
 }

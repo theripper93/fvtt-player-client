@@ -1,90 +1,160 @@
 import './style.css';
+
+let appVersion: string;
+
+
+window.api.receive("app-version", async (version) => {
+    appVersion = version;
+
+    document.querySelector("#current-version").textContent = appVersion;
+
+    const latestVersion: string = (await (await fetch("https://api.github.com/repos/theripper93/fvtt-player-client/releases/latest", {mode: "cors"})).json())["tag_name"];
+    document.querySelector("#latest-version").textContent = latestVersion;
+    if (compareSemver(appVersion, latestVersion) < 0) {
+        document.querySelector(".update-available").classList.remove("hidden2");
+    }
+});
+
+
+function compareSemver(a: string, b: string): number {
+    const splitA = a.split(".");
+    const splitB = b.split(".");
+
+    let currentA, currentB: number;
+    for (let i = 0; i < splitA.length; i++) {
+        currentA = Number(splitA[0]);
+        currentB = Number(splitB[0]);
+        if (currentA > currentB) {
+            return 1;
+        } else if (currentA < currentB) {
+            return -1;
+        }
+    }
+    return 0
+}
+
+
 document.querySelector("#add-game").addEventListener("click", () => {
-    const gameUrl = (document.querySelector("#game-url")  as HTMLInputElement).value;
-    const gameName = (document.querySelector("#game-name")  as HTMLInputElement).value;
+    const gameUrlField = document.querySelector("#game-url") as HTMLInputElement;
+    const gameNameField = document.querySelector("#game-name") as HTMLInputElement;
+    const gameUrl = gameUrlField.value;
+    const gameName = gameNameField.value;
     if (!gameUrl || !gameName) return alert("Please enter a game name and url");
     const gameList = window.localStorage.getItem("gameList") || "[]";
     const gameListJson: GameConfig[] = JSON.parse(gameList);
-    gameListJson.push({name: gameName, url: gameUrl, id: Math.round(Math.random() * 1000000)});
+    const newGameItem = {name: gameName, url: gameUrl, id: Math.round(Math.random() * 1000000)} as GameConfig;
+    gameListJson.push(newGameItem);
     window.localStorage.setItem("gameList", JSON.stringify(gameListJson));
-    (document.querySelector("#game-url")  as HTMLInputElement).value = "";
-    (document.querySelector("#game-name")  as HTMLInputElement).value = "";
-    createGameList();
+    gameUrlField.value = "";
+    gameNameField.value = "";
+    createGameItem(newGameItem);
 });
+
+
+const gameItemList = document.querySelector("#game-list");
+const gameItemTemplate = document.querySelector("template").content.querySelector("li");
+
+
+document.querySelector("#save-app-config").addEventListener("click", (e) => {
+    if (!(e.target instanceof Element))
+        return;
+    e.target.closest(".app-configuration").classList.add("hidden2");
+    const closeUserConfig = e.target.closest(".app-configuration") as HTMLDivElement;
+    const background = (closeUserConfig.querySelector("#background-image") as HTMLInputElement).value;
+    const accentColor = (closeUserConfig.querySelector("#accent-color") as HTMLInputElement).value;
+    const backgroundColor = (closeUserConfig.querySelector("#background-color") as HTMLInputElement).value;
+    const textColor = (closeUserConfig.querySelector("#text-color") as HTMLInputElement).value;
+    const config = {accentColor, backgroundColor, background, textColor} as AppConfig;
+    window.localStorage.setItem("appConfig", JSON.stringify(config));
+    applyAppConfig(config);
+    // window.api.send("save-user-data", {gameId, user, password, adminPassword});
+});
+
+async function createGameItem(game: GameConfig) {
+    const li = document.importNode(gameItemTemplate, true);
+    li.querySelector("a").innerText = game.name;
+    li.querySelector(".game-button").addEventListener("click", () => {
+        window.api.send("open-game", game.id ?? game.name);
+        window.location.href = game.url;
+    });
+    gameItemList.appendChild(li);
+    const userConfiguration = li.querySelector("div.user-configuration") as HTMLDivElement;
+    userConfiguration.style.height = `${userConfiguration.scrollHeight}px`;
+    userConfiguration.querySelector("#delete-game")?.addEventListener("click", () => {
+        const gameList = window.localStorage.getItem("gameList") || "[]";
+        const gameListJson: GameConfig[] = JSON.parse(gameList);
+        const newGameList = gameListJson.filter((g) => g.id !== game.id);
+        window.localStorage.setItem("gameList", JSON.stringify(newGameList));
+        createGameList();
+    });
+    const gameId = game.id ?? game.name;
+    const saveButton = userConfiguration.querySelector("#save-user-data") as HTMLButtonElement;
+    saveButton.addEventListener("click", (e) => {
+        if (!(e.target instanceof Element))
+            return;
+        e.target.closest(".user-configuration").classList.add("hidden");
+        const closeUserConfig = e.target.closest(".user-configuration") as HTMLDivElement;
+        const user = (closeUserConfig.querySelector("#user-name") as HTMLInputElement).value;
+        const password = (closeUserConfig.querySelector("#user-password") as HTMLInputElement).value;
+        const adminPassword = (closeUserConfig.querySelector("#admin-password") as HTMLInputElement).value;
+        console.log({gameId, user, password, adminPassword})
+        window.api.send("save-user-data", {gameId, user, password, adminPassword} as SaveUserData);
+    });
+}
+
+function applyAppConfig(config: AppConfig) {
+    (document.querySelector("#accent-color") as HTMLInputElement).value = "#f77f00";
+    (document.querySelector("#background-color") as HTMLInputElement).value = "#003049";
+    (document.querySelector("#text-color") as HTMLInputElement).value = "#eae2b7";
+    if (config.background) {
+        document.body.style.backgroundImage = `url(${config.background})`;
+        (document.querySelector("#background-image") as HTMLInputElement).value = config.background;
+    }
+    if (config.textColor) {
+        document.documentElement.style.setProperty("--color-text-primary", config.textColor);
+        (document.querySelector("#text-color") as HTMLInputElement).value = config.textColor.substring(0, 7);
+    }
+    if (config.backgroundColor) {
+        document.documentElement.style.setProperty("--color-background", config.backgroundColor);
+        (document.querySelector("#background-color") as HTMLInputElement).value = config.backgroundColor.substring(0, 7);
+    }
+    if (config.accentColor) {
+        document.documentElement.style.setProperty("--color-accent", config.accentColor);
+        (document.querySelector("#accent-color") as HTMLInputElement).value = config.accentColor.substring(0, 7);
+    }
+}
 
 async function createGameList() {
     let config: AppConfig;
     try {
-        config = await fetch("config.json").then((res) => res.json());
+        config = await fetch("config.json").then((res) => {
+            return res.json();
+        }) as AppConfig;
     } catch (e) {
         console.log("Failed to load config.json");
     }
-    if (config.background) document.body.style.backgroundImage = `url(${config.background})`;
-    if (config.textColor) document.documentElement.style.setProperty("--color-text-primary", config.textColor);
-    if (config.backgroundColor) document.documentElement.style.setProperty("--color-background", config.backgroundColor);
-    if (config.accentColor) document.documentElement.style.setProperty("--color-accent", config.accentColor);
-    const ul = document.querySelector("#game-list");
-    ul.childNodes.forEach((value) => value.remove());
-    ul.innerHTML = "";
+    config = {...config, ...(JSON.parse(window.localStorage.getItem("appConfig") || "{}") as AppConfig)}
+
+
+    applyAppConfig(config);
+
+    window.api.send("app-version");
+
+
+    gameItemList.childNodes.forEach((value) => {
+            if (value.nodeName === "template")
+                return;
+            value.remove();
+        }
+    );
+
     const gameList = window.localStorage.getItem("gameList") || "[]";
     let gameListJson: GameConfig[] = JSON.parse(gameList);
-    console.log(gameList,gameListJson, config);
     gameListJson = [...config.games, ...gameListJson];
-    gameListJson.forEach((game) => {
-        const li = document.createElement("li");
-        li.classList.add("game-item");
-        li.innerHTML = `<div class="game-title-bar"><button class="game-button"><a>${game.name}</a></button> <button data-game-id="${game.id}" class="configure-game"><i class="fa-solid fa-gear"/></button></div>`;
-        li.querySelector(".game-button").addEventListener("click", (e) => {
-            window.api.send("open-game", game.id ?? game.name);
-            window.location.href = game.url;
-        });
-        ul.appendChild(li);
-        li.querySelector(".configure-game").addEventListener("click", (e) => {
-            if (!(e.target instanceof Element))
-                return;
-            e.target.closest(".game-item").querySelector(".user-configuration").classList.toggle("hidden");
-        });
-        const userConfiguration = document.createElement("div");
-        userConfiguration.classList.add("user-configuration");
-        userConfiguration.innerHTML = `
-            <div class="user-name-field">
-                <input type="text" placeholder="User Name" id="user-name" value="${""}">
-            </div>
-            <div class="user-password-field">
-                <input type="password" placeholder="Password" id="user-password" value="${""}">
-            </div>
-            <div class="admin-password-field">
-                <input type="password" placeholder="Admin Password" id="admin-password" value="${""}">
-            </div>
-
-            <div class="button-group">
-            <button id="save-user-data">Save</button>
-            <button id="delete-game">Delete</button>
-            </div>
-        `;
-        li.appendChild(userConfiguration);
-        const offsetHeight = userConfiguration.offsetHeight;
-        userConfiguration.style.height = `${offsetHeight}px`;
-        userConfiguration.classList.add("hidden");
-        userConfiguration.querySelector("#delete-game")?.addEventListener("click", () => {
-            const gameList = window.localStorage.getItem("gameList") || "[]";
-            const gameListJson: GameConfig[] = JSON.parse(gameList);
-            const newGameList = gameListJson.filter((g) => g.id !== game.id);
-            window.localStorage.setItem("gameList", JSON.stringify(newGameList));
-            createGameList();
-        });
-        const gameId = game.id ?? game.name;
-        const saveButton = userConfiguration.querySelector("#save-user-data");
-        saveButton.addEventListener("click", (e) => {
-            if (!(e.target instanceof Element))
-                return;
-            e.target.closest(".user-configuration").classList.add("hidden");
-            const user = (e.target.closest(".user-configuration").querySelector("#user-name") as HTMLInputElement).value;
-            const password = (e.target.closest(".user-configuration").querySelector("#user-password") as HTMLInputElement).value;
-            const adminPassword = (e.target.closest(".user-configuration").querySelector("#admin-password") as HTMLInputElement).value;
-            window.api.send("save-user-data", {gameId, user, password, adminPassword});
-        });
-    });
+    gameListJson.forEach(createGameItem);
 }
 
+while (!window) {
+    //
+}
 createGameList();
