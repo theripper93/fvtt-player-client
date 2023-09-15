@@ -53,7 +53,9 @@ document.querySelector("#save-app-config").addEventListener("click", (e) => {
     const backgroundColor = (closeUserConfig.querySelector("#background-color") as HTMLInputElement).value;
     const textColor = (closeUserConfig.querySelector("#text-color") as HTMLInputElement).value;
     const cachePath = (closeUserConfig.querySelector("#cache-path") as HTMLInputElement).value;
-    const config = {accentColor, backgroundColor, background, textColor, cachePath} as AppConfig;
+    const autoCacheClear = (closeUserConfig.querySelector("#cache-path") as HTMLInputElement).checked;
+    const config = {accentColor, backgroundColor, background, textColor, cachePath, autoCacheClear} as AppConfig;
+    console.log(config);
     window.localStorage.setItem("appConfig", JSON.stringify(config));
     applyAppConfig(config);
 });
@@ -65,10 +67,10 @@ document.querySelector("#clear-cache").addEventListener("click", () => {
 async function createGameItem(game: GameConfig) {
     const li = document.importNode(gameItemTemplate, true);
     const loginData = await window.api.request("get-user-data", (game.id ?? game.name).toString()) as GameUserDataDecrypted;
-    const closeUserConfig = li.closest(".user-configuration") as HTMLDivElement;
-    (closeUserConfig.querySelector("#user-name") as HTMLInputElement).value = loginData.user;
-    (closeUserConfig.querySelector("#user-password") as HTMLInputElement).value = loginData.password;
-    (closeUserConfig.querySelector("#admin-password") as HTMLInputElement).value = loginData.adminPassword;
+
+    (li.querySelector("#user-name") as HTMLInputElement).value = loginData.user;
+    (li.querySelector("#user-password") as HTMLInputElement).value = loginData.password;
+    (li.querySelector("#admin-password") as HTMLInputElement).value = loginData.adminPassword;
     li.querySelector("a").innerText = game.name;
     li.querySelector(".game-button").addEventListener("click", () => {
         window.api.send("open-game", game.id ?? game.name);
@@ -90,6 +92,7 @@ async function createGameItem(game: GameConfig) {
         if (!(e.target instanceof Element))
             return;
         e.target.closest(".user-configuration").classList.add("hidden");
+        const closeUserConfig = e.target.closest(".user-configuration") as HTMLDivElement;
         const user = (closeUserConfig.querySelector("#user-name") as HTMLInputElement).value;
         const password = (closeUserConfig.querySelector("#user-password") as HTMLInputElement).value;
         const adminPassword = (closeUserConfig.querySelector("#admin-password") as HTMLInputElement).value;
