@@ -1,4 +1,4 @@
-import {app, BrowserWindow, ipcMain, safeStorage, shell} from 'electron';
+import {app, BrowserWindow, ipcMain, safeStorage,} from 'electron';
 import path from 'path';
 import fs from 'fs';
 
@@ -23,6 +23,15 @@ const createWindow = () => {
             contextIsolation: true,
             webgl: true
         },
+    });
+    win.webContents.on('did-start-loading', () => {
+        win.setTitle(app.getName() + ' * Loading ....');
+        win.setProgressBar(2, {mode: 'indeterminate'}) // second parameter optional
+    });
+
+    win.webContents.on('did-finish-load', () => {
+        win.setTitle(app.getName());
+        win.setProgressBar(-1);
     });
     win.webContents.setWindowOpenHandler((e) => {
         return {
@@ -52,6 +61,7 @@ app.whenReady().then(() => {
             win.webContents.toggleDevTools();
             event.preventDefault();
         } else if (input.key === 'F5' && input.control) {
+
             win.webContents.reloadIgnoringCache()
             event.preventDefault();
         } else if (input.key === 'F5') {
@@ -61,6 +71,47 @@ app.whenReady().then(() => {
     });
     win.webContents.on("did-finish-load", () => {
         const url = win.webContents.getURL();
+        if (!url.endsWith("/join") && !url.endsWith("/auth") && !url.endsWith("/setup"))
+            return;
+        if (url.endsWith("/setup")) {
+            win.webContents.executeJavaScript(`
+                if ($('#server-button').length === 0) {
+                    const serverSelectButton = $('<button type="button" data-action="returnServerSelect" id="server-button" data-tooltip="Return to Server Select"><i class="fas fa-server"></i></button>');
+                    serverSelectButton.on('click', () => {
+                        window.api.send("return-select");
+                    });
+                    setTimeout(() => {
+                        $('nav#setup-menu').append(serverSelectButton)
+                    }, 200);
+                }
+            `);
+        }
+        if (url.endsWith("/auth")) {
+            win.webContents.executeJavaScript(`
+                if ($('#server-button').length === 0) {
+                    const serverSelectButton = $('<button type="button" class="bright" id="server-button"> <i class="fa-solid fa-server"></i>Return to Server Select</button>');
+                    serverSelectButton.on('click', () => {
+                        window.api.send("return-select");
+                    });
+                    setTimeout(() => {
+                        $('.form-footer').append(serverSelectButton)
+                    }, 200);
+                }
+            `);
+        }
+        if (url.endsWith("/join")) {
+            win.webContents.executeJavaScript(`
+                if ($('#server-button').length === 0) {
+                    const serverSelectButton = $('<button type="button" class="bright" id="server-button"> <i class="fa-solid fa-server"></i>Return to Server Select</button>');
+                    serverSelectButton.on('click', () => {
+                        window.api.send("return-select");
+                    });
+                    setTimeout(() => {
+                        $('.form-footer').append(serverSelectButton)
+                    }, 200);
+                }
+            `);
+        }
         if (!url.endsWith("/join") && !url.endsWith("/auth"))
             return;
         const userData = getLoginDetails(gameId);
@@ -106,9 +157,8 @@ app.whenReady().then(() => {
 ipcMain.on("open-game", (_e, gId) => {
     gameId = gId;
 });
-
-ipcMain.on("open-game", (_e, gId) => {
-    gameId = gId;
+ipcMain.on("clear-cache", async () => {
+    await win.webContents.session.clearCache();
 });
 ipcMain.on("return-select", () => {
     autoLogin = true;
@@ -127,9 +177,17 @@ ipcMain.on("save-user-data", (_e, data: SaveUserData) => {
         adminPassword: Array.from(safeStorage.encryptString(adminPassword))
     });
 });
-ipcMain.on("app-version",(event) => {
-    event.sender.send("app-version", app.getVersion());
+
+ipcMain.handle("app-version", () => {
+    return app.getVersion();
+})
+ipcMain.handle("cache-path", () => {
+    return app.getPath("sessionData");
+})
+ipcMain.on("cache-path", (event, path: string) => {
+    app.setPath("sessionData", path);
 });
+
 
 function getUserData(): UserData {
     try {

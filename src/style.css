@@ -221,6 +221,8 @@ table, th, td {
     transition: all 0.3s ease-in-out;
     border: 2px solid var(--color-text-primary);
     padding: 0.5rem;
+    padding-left: 2rem;
+    padding-right: 2.5rem;
 }
 
 .game-item:hover {
