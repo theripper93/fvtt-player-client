@@ -122,7 +122,6 @@ app.whenReady().then(() => {
                 while (!document.querySelector('select[name="userid"]') && !document.querySelector('input[name="adminPassword"]')) {
                     await wait(100);
                 }
-                console.log("logging in");
                 login();
             }
 
@@ -151,26 +150,6 @@ app.whenReady().then(() => {
 
         `);
         autoLogin = false;
-
-        win.webContents.on("did-start-navigation", async (e) => {
-            if (e.isSameDocument) return;
-            if (e.url.startsWith("about")) return;
-            if (e.url.endsWith("/game")) {
-                win.webContents.executeJavaScript(`
-                    // Fix Popouts
-                    Object.defineProperty(navigator, "userAgent", {value: navigator.userAgent.replace("Electron", "")})
-                    // Add back button
-                    Hooks.on('renderSettings', function (settings, html) {
-                        if (html.find('#server-button').length > 0) return;
-                        const serverSelectButton = $(\`<button id="server-button" data-action="home"><i class="fas fa-server"></i>Return to Server Select</button>\`);
-                        serverSelectButton.on('click', () => {
-                            window.api.send("return-select");
-                        });
-                        html.find('#settings-access').append(serverSelectButton);
-                    });
-                `);
-            }
-        })
     });
 
 });
