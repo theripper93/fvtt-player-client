@@ -6,7 +6,7 @@
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <title>VTT Desktop Client</title>
     <script src="https://kit.fontawesome.com/d9351ab632.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="src/style.css">
+<!--    <link rel="stylesheet" href="src/style.css">-->
 </head>
 <body>
 <script>
@@ -28,77 +28,77 @@
     </div>
 
     <div class="update-available hidden2">
-        <h3>Update Available!</h3>
-        <p>Current version: <span id="current-version"></span></p>
-        <p>Latest version: <span id="latest-version"></span></p>
-        <a id="download-new" href="https://github.com/theripper93/fvtt-player-client/releases/latest" target="">Download Here</a>
+        <a id="download-new" href="https://github.com/OmegaRogue/fvtt-player-client/releases/latest" target="">Update Available!</a><span id="current-version"></span> → <span id="latest-version"></span>
     </div>
 
-    <div class="help hidden2">
-        <table>
-            <tr>
-                <th>Control</th>
-                <th>Action</th>
-            </tr>
-            <tr>
-                <td><kbd>Ctrl</kbd> + <kbd>R</kbd> or <kbd>F5</kbd></td>
-                <td>Reload</td>
-            </tr>
-            <tr>
-                <td><kbd>Ctrl</kbd> + <kbd>⇧Shift</kbd> + <kbd>R</kbd> or <kbd>Ctrl</kbd> + <kbd>F5</kbd></td>
-                <td>Hard Reload</td>
-            </tr>
-            <tr>
-                <td><kbd>Ctrl</kbd> + <kbd>+</kbd> or <kbd>Ctrl</kbd> + <kbd>⇧Shift</kbd> + <kbd>+</kbd></td>
-                <td>Zoom In</td>
-            </tr>
-            <tr>
-                <td><kbd>Ctrl</kbd> + <kbd>-</kbd></td>
-                <td>Zoom Out</td>
-            </tr>
-            <tr>
-                <td><kbd>Ctrl</kbd> + <kbd>0</kbd></td>
-                <td>Reset Zoom</td>
-            </tr>
-            <tr>
-                <td><kbd>F11</kbd></td>
-                <td>Fullscreen</td>
-            </tr>
-            <tr>
-                <td><kbd>Ctrl</kbd> + <kbd>⇧Shift</kbd> + <kbd>I</kbd> or <kbd>F12</kbd></td>
-                <td>Developer Console</td>
-            </tr>
-        </table>
-    </div>
+    <section class="menu-container">
+        <div class="help hidden2">
+            <table>
+                <tr>
+                    <th>Control</th>
+                    <th>Action</th>
+                </tr>
+                <tr>
+                    <td><kbd>Ctrl</kbd> + <kbd>R</kbd> or <kbd>F5</kbd></td>
+                    <td>Reload</td>
+                </tr>
+                <tr>
+                    <td><kbd>Ctrl</kbd> + <kbd>⇧Shift</kbd> + <kbd>R</kbd> or <kbd>Ctrl</kbd> + <kbd>F5</kbd></td>
+                    <td>Hard Reload</td>
+                </tr>
+                <tr>
+                    <td><kbd>Ctrl</kbd> + <kbd>+</kbd> or <kbd>Ctrl</kbd> + <kbd>⇧Shift</kbd> + <kbd>+</kbd></td>
+                    <td>Zoom In</td>
+                </tr>
+                <tr>
+                    <td><kbd>Ctrl</kbd> + <kbd>-</kbd></td>
+                    <td>Zoom Out</td>
+                </tr>
+                <tr>
+                    <td><kbd>Ctrl</kbd> + <kbd>0</kbd></td>
+                    <td>Reset Zoom</td>
+                </tr>
+                <tr>
+                    <td><kbd>F11</kbd></td>
+                    <td>Fullscreen</td>
+                </tr>
+                <tr>
+                    <td><kbd>Ctrl</kbd> + <kbd>⇧Shift</kbd> + <kbd>I</kbd> or <kbd>F12</kbd></td>
+                    <td>Developer Console</td>
+                </tr>
+            </table>
+        </div>
 
-    <div class="app-configuration hidden2">
-        <div class="background-color-field">
-            <label for="background-color">Background Color</label>
-            <input type="color" id="background-color">
+        <div class="app-configuration hidden2">
+            <div class="background-color-field field">
+                <label for="background-color">Background Color</label>
+                <input type="color" id="background-color">
+            </div>
+            <div class="text-color-field field">
+                <label for="text-color">Text Color</label>
+                <input type="color" id="text-color" class="no-text">
+            </div>
+            <div class="accent-color-field field">
+                <label for="accent-color">Accent Color</label>
+                <input type="color" id="accent-color" class="no-text">
+            </div>
+            <div class="background-image-field">
+                <input type="text" placeholder="Background Image" id="background-image" value="">
+            </div>
+            <div class="cache-path-field">
+                <input type="text" placeholder="Cache Path" id="cache-path" value="">
+            </div>
+            <div class="cache-path-field field">
+                <label for="clear-cache-on-close">Clear Cache on close</label>
+                <input id="clear-cache-on-close" class="no-text" type="checkbox">
+            </div>
+            <div class="button-group">
+                <button id="clear-cache">Clear Cache</button>
+                <button id="save-app-config">Save</button>
+            </div>
         </div>
-        <div class="text-color-field">
-            <label for="text-color">Text Color</label>
-            <input type="color" id="text-color" class="no-text">
-        </div>
-        <div class="accent-color-field">
-            <label for="accent-color">Accent Color</label>
-            <input type="color" id="accent-color" class="no-text">
-        </div>
-        <div class="background-image-field">
-            <input type="text" placeholder="Background Image" id="background-image" value="">
-        </div>
-        <div class="cache-path-field">
-            <input type="text" placeholder="Cache Path" id="cache-path" value="">
-        </div>
-        <div class="cache-path-field">
-            <label for="clear-cache-on-close">Clear Cache on closing app</label>
-            <input id="clear-cache-on-close" type="checkbox">
-        </div>
-        <div class="button-group">
-            <button id="clear-cache">Clear Cache</button>
-            <button id="save-app-config">Save</button>
-        </div>
-    </div>
+    </section>
+
     <ul id="game-list">
         <template id="game-item-template">
             <li class="game-item">
