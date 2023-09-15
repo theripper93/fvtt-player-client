@@ -61,7 +61,6 @@ app.whenReady().then(() => {
             win.webContents.toggleDevTools();
             event.preventDefault();
         } else if (input.key === 'F5' && input.control) {
-
             win.webContents.reloadIgnoringCache()
             event.preventDefault();
         } else if (input.key === 'F5') {
@@ -198,6 +197,9 @@ ipcMain.on("save-user-data", (_e, data: SaveUserData) => {
         adminPassword: Array.from(safeStorage.encryptString(adminPassword))
     });
 });
+ipcMain.handle("get-user-data", (event, gameId: string) => {
+    return getLoginDetails(gameId);
+})
 
 ipcMain.handle("app-version", () => {
     return app.getVersion();
@@ -208,7 +210,6 @@ ipcMain.handle("cache-path", () => {
 ipcMain.on("cache-path", (event, path: string) => {
     app.setPath("sessionData", path);
 });
-
 
 function getUserData(): UserData {
     try {
