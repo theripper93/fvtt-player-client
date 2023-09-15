@@ -1,9 +1,10 @@
 import './style.css';
+import session = Electron.session;
 
 let appVersion: string;
 
 
-window.api.receive("app-version", async (version) => {
+window.api.receive("app-version", async (version: string) => {
     appVersion = version;
 
     document.querySelector("#current-version").textContent = appVersion;
@@ -64,10 +65,14 @@ document.querySelector("#save-app-config").addEventListener("click", (e) => {
     const accentColor = (closeUserConfig.querySelector("#accent-color") as HTMLInputElement).value;
     const backgroundColor = (closeUserConfig.querySelector("#background-color") as HTMLInputElement).value;
     const textColor = (closeUserConfig.querySelector("#text-color") as HTMLInputElement).value;
-    const config = {accentColor, backgroundColor, background, textColor} as AppConfig;
+    const cachePath = (closeUserConfig.querySelector("#cache-path") as HTMLInputElement).value;
+    const config = {accentColor, backgroundColor, background, textColor, cachePath} as AppConfig;
     window.localStorage.setItem("appConfig", JSON.stringify(config));
     applyAppConfig(config);
-    // window.api.send("save-user-data", {gameId, user, password, adminPassword});
+});
+
+document.querySelector("#clear-cache").addEventListener("click", () => {
+   window.api.send("clear-cache");
 });
 
 async function createGameItem(game: GameConfig) {
@@ -110,6 +115,7 @@ function applyAppConfig(config: AppConfig) {
         document.body.style.backgroundImage = `url(${config.background})`;
         (document.querySelector("#background-image") as HTMLInputElement).value = config.background;
     }
+
     if (config.textColor) {
         document.documentElement.style.setProperty("--color-text-primary", config.textColor);
         (document.querySelector("#text-color") as HTMLInputElement).value = config.textColor.substring(0, 7);
@@ -121,6 +127,10 @@ function applyAppConfig(config: AppConfig) {
     if (config.accentColor) {
         document.documentElement.style.setProperty("--color-accent", config.accentColor);
         (document.querySelector("#accent-color") as HTMLInputElement).value = config.accentColor.substring(0, 7);
+    }
+    if (config.cachePath) {
+        (document.querySelector("#cache-path") as HTMLInputElement).value = config.cachePath;
+        window.api.send("cache-path", config.cachePath);
     }
 }
 
@@ -135,10 +145,11 @@ async function createGameList() {
     }
     config = {...config, ...(JSON.parse(window.localStorage.getItem("appConfig") || "{}") as AppConfig)}
 
+    appVersion = await window.api.request("app-version");
 
     applyAppConfig(config);
 
-    window.api.send("app-version");
+
 
 
     gameItemList.childNodes.forEach((value) => {

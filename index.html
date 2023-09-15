@@ -71,7 +71,7 @@
         </table>
     </div>
 
-    <div class="app-configuration hidden2">
+    <div class="app-configuration">
         <div class="background-color-field">
             <label for="background-color">Background Color</label>
             <input type="color" id="background-color">
@@ -87,7 +87,15 @@
         <div class="background-image-field">
             <input type="text" placeholder="Background Image" id="background-image" value="">
         </div>
+        <div class="cache-path-field">
+            <input type="text" placeholder="Cache Path" id="cache-path" value="">
+        </div>
+        <div class="cache-path-field">
+            <label for="clear-cache-on-close">Clear Cache on closing app</label>
+            <input id="clear-cache-on-close" type="checkbox">
+        </div>
         <div class="button-group">
+            <button id="clear-cache">Clear Cache</button>
             <button id="save-app-config">Save</button>
         </div>
     </div>
