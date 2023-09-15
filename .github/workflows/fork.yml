@@ -17,3 +17,11 @@ jobs:
           from_branch: main
           target_branch: pull-request-no-injection
           github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: pull-request
+        uses: repo-sync/pull-request@v2
+        if: failure()
+        with:
+          destination_branch: "pull-request-no-injection"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_label: "feature, automated pr"
+          pr_title: "Update base repo"
