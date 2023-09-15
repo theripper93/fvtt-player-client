@@ -4,19 +4,6 @@ import session = Electron.session;
 let appVersion: string;
 
 
-window.api.receive("app-version", async (version: string) => {
-    appVersion = version;
-
-    document.querySelector("#current-version").textContent = appVersion;
-
-    const latestVersion: string = (await (await fetch("https://api.github.com/repos/OmegaRogue/fvtt-player-client/releases/latest", {mode: "cors"})).json())["tag_name"];
-    document.querySelector("#latest-version").textContent = latestVersion;
-    if (compareSemver(appVersion, latestVersion) < 0) {
-        document.querySelector(".update-available").classList.remove("hidden2");
-    }
-});
-
-
 function compareSemver(a: string, b: string): number {
     const splitA = a.split(".");
     const splitB = b.split(".");
@@ -66,17 +53,24 @@ document.querySelector("#save-app-config").addEventListener("click", (e) => {
     const backgroundColor = (closeUserConfig.querySelector("#background-color") as HTMLInputElement).value;
     const textColor = (closeUserConfig.querySelector("#text-color") as HTMLInputElement).value;
     const cachePath = (closeUserConfig.querySelector("#cache-path") as HTMLInputElement).value;
-    const config = {accentColor, backgroundColor, background, textColor, cachePath} as AppConfig;
+    const autoCacheClear = (closeUserConfig.querySelector("#cache-path") as HTMLInputElement).checked;
+    const config = {accentColor, backgroundColor, background, textColor, cachePath, autoCacheClear} as AppConfig;
+    console.log(config);
     window.localStorage.setItem("appConfig", JSON.stringify(config));
     applyAppConfig(config);
 });
 
 document.querySelector("#clear-cache").addEventListener("click", () => {
-   window.api.send("clear-cache");
+    window.api.send("clear-cache");
 });
 
 async function createGameItem(game: GameConfig) {
     const li = document.importNode(gameItemTemplate, true);
+    const loginData = await window.api.request("get-user-data", (game.id ?? game.name).toString()) as GameUserDataDecrypted;
+
+    (li.querySelector("#user-name") as HTMLInputElement).value = loginData.user;
+    (li.querySelector("#user-password") as HTMLInputElement).value = loginData.password;
+    (li.querySelector("#admin-password") as HTMLInputElement).value = loginData.adminPassword;
     li.querySelector("a").innerText = game.name;
     li.querySelector(".game-button").addEventListener("click", () => {
         window.api.send("open-game", game.id ?? game.name);
@@ -146,10 +140,15 @@ async function createGameList() {
     config = {...config, ...(JSON.parse(window.localStorage.getItem("appConfig") || "{}") as AppConfig)}
 
     appVersion = await window.api.request("app-version");
+    document.querySelector("#current-version").textContent = appVersion;
+
+    const latestVersion: string = (await (await fetch("https://api.github.com/repos/theripper93/fvtt-player-client/releases/latest", {mode: "cors"})).json())["tag_name"];
+    document.querySelector("#latest-version").textContent = latestVersion;
+    if (compareSemver(appVersion, latestVersion) < 0) {
+        document.querySelector(".update-available").classList.remove("hidden2");
+    }
 
     applyAppConfig(config);
-
-
 
 
     gameItemList.childNodes.forEach((value) => {

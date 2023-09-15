@@ -17,6 +17,7 @@ type AppConfig = {
     textColor: string;
     accentColor: string;
     cachePath?: string;
+    autoCacheClear?: boolean;
 }
 
 
