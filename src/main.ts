@@ -1,3 +1,5 @@
+// noinspection ES6MissingAwait,JSIgnoredPromiseFromCall
+
 import {app, BrowserWindow, ipcMain, safeStorage,} from 'electron';
 import path from 'path';
 import fs from 'fs';
@@ -33,7 +35,7 @@ const createWindow = () => {
         win.setTitle(app.getName());
         win.setProgressBar(-1);
     });
-    win.webContents.setWindowOpenHandler((e) => {
+    win.webContents.setWindowOpenHandler(() => {
         return {
             action: 'allow',
             overrideBrowserWindowOptions: {
