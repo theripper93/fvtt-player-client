@@ -192,9 +192,9 @@ ipcMain.on("return-select", () => {
 ipcMain.on("save-user-data", (_e, data: SaveUserData) => {
     const {gameId, password, user, adminPassword} = data;
     saveUserData(gameId.toString(), {
-        password: Array.from(safeStorage.encryptString(password)),
+        password: password.length !== 0 ? Array.from(safeStorage.encryptString(password)) : [],
         user,
-        adminPassword: Array.from(safeStorage.encryptString(adminPassword))
+        adminPassword: password.length !== 0 ? Array.from(safeStorage.encryptString(adminPassword)) : []
     });
 });
 ipcMain.handle("get-user-data", (event, gameId: string) => {
@@ -226,10 +226,11 @@ function getLoginDetails(gameId: string): GameUserDataDecrypted {
     if (!userData) return {user: "", password: "", adminPassword: ""};
     const password = new Uint8Array(userData.password);
     const adminPassword = new Uint8Array(userData.adminPassword);
+
     return {
         user: userData.user,
-        password: safeStorage.decryptString(Buffer.from(password)),
-        adminPassword: safeStorage.decryptString(Buffer.from(adminPassword)),
+        password: password.length !== 0 ? safeStorage.decryptString(Buffer.from(password)) : "",
+        adminPassword: password.length !== 0 ? safeStorage.decryptString(Buffer.from(adminPassword)) : "",
     };
 }
 
