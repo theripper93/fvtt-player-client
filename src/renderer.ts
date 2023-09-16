@@ -138,9 +138,9 @@ async function createGameList() {
     } catch (e) {
         console.log("Failed to load config.json");
     }
-    config = {...config, ...(JSON.parse(window.localStorage.getItem("appConfig") || "{}") as AppConfig)}
+    config = {...config, ...(JSON.parse(window.localStorage.getItem("appConfig") || "{}") as AppConfig)};
 
-    appVersion = await window.api.request("app-version");
+    appVersion = await window.api.request("app-version") as string;
     document.querySelector("#current-version").textContent = appVersion;
 
     const latestVersion: string = (await (await fetch("https://api.github.com/repos/theripper93/fvtt-player-client/releases/latest", {mode: "cors"})).json())["tag_name"];
