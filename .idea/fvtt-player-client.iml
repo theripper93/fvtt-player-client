@@ -11,5 +11,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="@types/jquery" level="application" />
+    <orderEntry type="library" name="foundryvtt" level="application" />
+    <orderEntry type="library" name="d9351ab632" level="application" />
   </component>
 </module>
