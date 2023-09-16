@@ -1,3 +1,5 @@
+// noinspection JSIgnoredPromiseFromCall
+
 import './style.css';
 
 let appVersion: string;

@@ -2,6 +2,7 @@
 // @ts-ignore: no nodejs in preload
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 import {contextBridge, ipcRenderer} from 'electron';
+import {versions} from 'node:process';
 
 window.addEventListener("DOMContentLoaded", () => {
     const replaceText = (selector: string, text: string) => {
@@ -10,17 +11,24 @@ window.addEventListener("DOMContentLoaded", () => {
     };
 
     for (const dependency of ["chrome", "node", "electron"]) {
-        replaceText(`${dependency}-version`, process.versions[dependency]);
+        replaceText(`${dependency}-version`, versions[dependency]);
     }
 });
 
 
-type SendChannels = "toMain" | "open-game" | "save-user-data" | "return-select" | "app-version" | "cache-path" | "clear-cache";
+type SendChannels =
+    "toMain"
+    | "open-game"
+    | "save-user-data"
+    | "return-select"
+    | "app-version"
+    | "cache-path"
+    | "clear-cache";
 type ReceiveChannels = "fromMain" | "save-user-data" | "app-version" | "cache-path";
 type RequestChannels = "app-version" | "cache-path" | "get-user-data";
 type SendOnChannel = (channel: SendChannels, data?: number | string | SaveUserData) => void;
-type ReceiveOnChannel = ((channel: ReceiveChannels, func: (...args: any[]) => void) => void)
-type RequestOnChannel = ((channel: RequestChannels, ...args: any[]) => Promise<any>)
+type ReceiveOnChannel = ((channel: ReceiveChannels, func: (...args: unknown[]) => void) => void)
+type RequestOnChannel = ((channel: RequestChannels, ...args: unknown[]) => Promise<unknown>)
 
 export type ContextBridgeApi = {
     send: SendOnChannel;
@@ -28,7 +36,7 @@ export type ContextBridgeApi = {
     request: RequestOnChannel;
 }
 const exposedApi: ContextBridgeApi = {
-    request: (channel: RequestChannels, ...args: any[]): Promise<any>  => {
+    request: (channel: RequestChannels, ...args: unknown[]): Promise<unknown> => {
         if (channel === "get-user-data") {
             if (args.length !== 1 || typeof args[0] !== "string")
                 throw new Error("Invalid arguments for get-user-data");
@@ -46,9 +54,9 @@ const exposedApi: ContextBridgeApi = {
                 throw new Error("No arguments allowed for cache-path");
             return ipcRenderer.invoke(channel) as Promise<string>;
         }
-       return ipcRenderer.invoke(channel, ...args);
+        return ipcRenderer.invoke(channel, ...args);
     },
-    receive: (channel: ReceiveChannels, func: (...args: any[]) => void) => {
+    receive: (channel: ReceiveChannels, func: (...args: unknown[]) => void) => {
         // Deliberately strip event as it includes `sender`
         ipcRenderer.on(channel, (event, ...args) => func(...args));
     },

@@ -76,8 +76,7 @@ input[type=checkbox]:after {
     display: block;
     width: 30px;
     height: 30px;
-    border: solid #FFCB9A;
-    border-width: 0 0px 0px 0;
+    border: 0 solid #FFCB9A;
 }
 
 input[type=checkbox]:checked:after {
@@ -194,7 +193,7 @@ table, th, td {
     border-collapse: collapse;
 }
 
-.menu-container{
+.menu-container {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -206,7 +205,7 @@ table, th, td {
     gap: 1rem;
 }
 
-.field{
+.field {
     display: flex;
     justify-content: space-between;
 }
@@ -217,7 +216,7 @@ table, th, td {
     box-shadow: 0 0 5px black;
 }
 
-.help td{
+.help td {
     padding: 0.3rem 0.5rem;
 }
 
@@ -226,6 +225,7 @@ table, th, td {
     top: 2rem;
     right: 2rem;
 }
+
 .app-configuration {
     box-shadow: 0 0 5px black;
     display: flex;
@@ -237,13 +237,13 @@ table, th, td {
     pointer-events: all;
 }
 
-.update-available{
+.update-available {
     position: absolute;
     bottom: 0;
     left: 0;
 }
 
-.update-available a{
+.update-available a {
     font-size: 1rem;
     color: var(--color-accent);
 }
