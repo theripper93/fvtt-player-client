@@ -1,5 +1,4 @@
 import './style.css';
-import session = Electron.session;
 
 let appVersion: string;
 
