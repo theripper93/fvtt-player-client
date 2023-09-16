@@ -139,12 +139,16 @@ app.whenReady().then(() => {
                 const password = document.querySelector('input[name="password"]');
                 if (password)
                     password.value = "${userData.password}";
+                const fakeEvent = {
+                    preventDefault: () => {
+                    }, target: document.getElementById("join-game")
+                }
                 if ("${autoLogin}" === "true") {
-                    const fakeEvent = {
-                        preventDefault: () => {
-                        }, target: document.getElementById("join-game")
-                    }
                     ui.join._onSubmit(fakeEvent);
+                } else {
+                    document.getElementById("join-game").addEventListener("click", () => {
+                        ui.join._onSubmit(fakeEvent);
+                    });
                 }
             }
 
@@ -231,8 +235,8 @@ function getLoginDetails(gameId: string): GameUserDataDecrypted {
 
     return {
         user: userData.user,
-        password: password.length !== 0 ? safeStorage.decryptString(Buffer.from(password)) : "",
-        adminPassword: password.length !== 0 ? safeStorage.decryptString(Buffer.from(adminPassword)) : "",
+        password: password.length !== 0 ? (safeStorage.isEncryptionAvailable() ? safeStorage.decryptString(Buffer.from(password)) : "") : "",
+        adminPassword: password.length !== 0 ? (safeStorage.isEncryptionAvailable() ? safeStorage.decryptString(Buffer.from(adminPassword)) : "") : "",
     };
 }
 

@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: no nodejs in preload
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 import {contextBridge, ipcRenderer} from 'electron';
-import {versions} from 'node:process';
 
 window.addEventListener("DOMContentLoaded", () => {
     const replaceText = (selector: string, text: string) => {
@@ -11,7 +11,7 @@ window.addEventListener("DOMContentLoaded", () => {
     };
 
     for (const dependency of ["chrome", "node", "electron"]) {
-        replaceText(`${dependency}-version`, versions[dependency]);
+        replaceText(`${dependency}-version`, process.versions[dependency]);
     }
 });
 
