@@ -26,6 +26,8 @@ const createWindow = () => {
             webgl: true
         },
     });
+    // Fix Popouts
+    win.webContents.setUserAgent(win.webContents.getUserAgent().replace("Electron", ""));
     win.webContents.on('did-start-loading', () => {
         win.setTitle(app.getName() + ' * Loading ....');
         win.setProgressBar(2, {mode: 'indeterminate'}) // second parameter optional
