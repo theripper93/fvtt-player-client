@@ -26,6 +26,8 @@ const createWindow = () => {
             webgl: true
         },
     });
+    // Fix Popouts
+    win.webContents.setUserAgent(win.webContents.getUserAgent().replace("Electron", ""));
     win.webContents.on('did-start-loading', () => {
         win.setTitle(app.getName() + ' * Loading ....');
         win.setProgressBar(2, {mode: 'indeterminate'}) // second parameter optional
@@ -162,8 +164,6 @@ app.whenReady().then(() => {
             if (e.url.startsWith("about")) return;
             if (e.url.endsWith("/game")) {
                 win.webContents.executeJavaScript(`
-                    // Fix Popouts
-                    Object.defineProperty(navigator, "userAgent", {value: navigator.userAgent.replace("Electron", "")})
                     // Add back button
                     Hooks.on('renderSettings', function (settings, html) {
                         if (html.find('#server-button').length > 0) return;
