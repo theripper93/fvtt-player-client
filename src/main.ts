@@ -1,5 +1,3 @@
-// noinspection ES6MissingAwait,JSIgnoredPromiseFromCall
-
 import {app, BrowserWindow, ipcMain, safeStorage,} from 'electron';
 import path from 'path';
 import fs from 'fs';
@@ -214,7 +212,6 @@ function getLoginDetails(gameId: string): GameUserDataDecrypted {
     if (!userData) return {user: "", password: "", adminPassword: ""};
     const password = new Uint8Array(userData.password);
     const adminPassword = new Uint8Array(userData.adminPassword);
-
     return {
         user: userData.user,
         password: password.length !== 0 ? (safeStorage.isEncryptionAvailable() ? safeStorage.decryptString(Buffer.from(password)) : "") : "",
