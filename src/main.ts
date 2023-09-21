@@ -148,7 +148,7 @@ app.whenReady().then(() => {
                 if ("${autoLogin}" === "true") {
                     ui.join._onSubmit(fakeEvent);
                 } else {
-                    document.getElementById("join-game").addEventListener("click", () => {
+                    document.querySelector(".form-footer button[name=join]").addEventListener("click", () => {
                         ui.join._onSubmit(fakeEvent);
                     });
                 }
