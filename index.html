@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <title>VTT Desktop Client</title>
     <script src="https://kit.fontawesome.com/d9351ab632.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="src/style.css">
+<!--    <link rel="stylesheet" href="src/style.css">-->
 </head>
 <body>
 <script>
@@ -68,7 +68,7 @@
                 </tr>
             </table>
         </div>
-    
+
         <div class="app-configuration hidden2">
             <div class="background-color-field field">
                 <label for="background-color">Background Color</label>
@@ -85,7 +85,15 @@
             <div class="background-image-field">
                 <input type="text" placeholder="Background Image" id="background-image" value="">
             </div>
+            <div class="cache-path-field">
+                <input type="text" placeholder="Cache Path" id="cache-path" value="">
+            </div>
+            <div class="cache-path-field field">
+                <label for="clear-cache-on-close">Clear Cache on close</label>
+                <input id="clear-cache-on-close" class="no-text" type="checkbox">
+            </div>
             <div class="button-group">
+                <button id="clear-cache">Clear Cache</button>
                 <button id="save-app-config">Save</button>
             </div>
         </div>

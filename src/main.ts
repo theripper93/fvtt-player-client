@@ -1,4 +1,4 @@
-import {app, BrowserWindow, ipcMain, safeStorage, shell} from 'electron';
+import {app, BrowserWindow, ipcMain, safeStorage,} from 'electron';
 import path from 'path';
 import fs from 'fs';
 
@@ -24,7 +24,18 @@ const createWindow = () => {
             webgl: true
         },
     });
-    win.webContents.setWindowOpenHandler((e) => {
+    // Fix Popouts
+    win.webContents.setUserAgent(win.webContents.getUserAgent().replace("Electron", ""));
+    win.webContents.on('did-start-loading', () => {
+        win.setTitle(app.getName() + ' * Loading ....');
+        win.setProgressBar(2, {mode: 'indeterminate'}) // second parameter optional
+    });
+
+    win.webContents.on('did-finish-load', () => {
+        win.setTitle(app.getName());
+        win.setProgressBar(-1);
+    });
+    win.webContents.setWindowOpenHandler(() => {
         return {
             action: 'allow',
             overrideBrowserWindowOptions: {
@@ -61,6 +72,47 @@ app.whenReady().then(() => {
     });
     win.webContents.on("did-finish-load", () => {
         const url = win.webContents.getURL();
+        if (!url.endsWith("/join") && !url.endsWith("/auth") && !url.endsWith("/setup"))
+            return;
+        if (url.endsWith("/setup")) {
+            win.webContents.executeJavaScript(`
+                if ($('#server-button').length === 0) {
+                    const serverSelectButton = $('<button type="button" data-action="returnServerSelect" id="server-button" data-tooltip="Return to Server Select"><i class="fas fa-server"></i></button>');
+                    serverSelectButton.on('click', () => {
+                        window.api.send("return-select");
+                    });
+                    setTimeout(() => {
+                        $('nav#setup-menu').append(serverSelectButton)
+                    }, 200);
+                }
+            `);
+        }
+        if (url.endsWith("/auth")) {
+            win.webContents.executeJavaScript(`
+                if ($('#server-button').length === 0) {
+                    const serverSelectButton = $('<button type="button" class="bright" id="server-button"> <i class="fa-solid fa-server"></i>Return to Server Select</button>');
+                    serverSelectButton.on('click', () => {
+                        window.api.send("return-select");
+                    });
+                    setTimeout(() => {
+                        $('.form-footer').append(serverSelectButton)
+                    }, 200);
+                }
+            `);
+        }
+        if (url.endsWith("/join")) {
+            win.webContents.executeJavaScript(`
+                if ($('#server-button').length === 0) {
+                    const serverSelectButton = $('<button type="button" class="bright" id="server-button"> <i class="fa-solid fa-server"></i>Return to Server Select</button>');
+                    serverSelectButton.on('click', () => {
+                        window.api.send("return-select");
+                    });
+                    setTimeout(() => {
+                        $('.form-footer').append(serverSelectButton)
+                    }, 200);
+                }
+            `);
+        }
         if (!url.endsWith("/join") && !url.endsWith("/auth"))
             return;
         const userData = getLoginDetails(gameId);
@@ -71,6 +123,7 @@ app.whenReady().then(() => {
                 while (!document.querySelector('select[name="userid"]') && !document.querySelector('input[name="adminPassword"]')) {
                     await wait(100);
                 }
+                console.log("logging in");
                 login();
             }
 
@@ -86,12 +139,16 @@ app.whenReady().then(() => {
                 const password = document.querySelector('input[name="password"]');
                 if (password)
                     password.value = "${userData.password}";
+                const fakeEvent = {
+                    preventDefault: () => {
+                    }, target: document.getElementById("join-game")
+                }
                 if ("${autoLogin}" === "true") {
-                    const fakeEvent = {
-                        preventDefault: () => {
-                        }, target: document.getElementById("join-game")
-                    }
                     ui.join._onSubmit(fakeEvent);
+                } else {
+                    document.getElementById("join-game").addEventListener("click", () => {
+                        ui.join._onSubmit(fakeEvent);
+                    });
                 }
             }
 
@@ -106,9 +163,8 @@ app.whenReady().then(() => {
 ipcMain.on("open-game", (_e, gId) => {
     gameId = gId;
 });
-
-ipcMain.on("open-game", (_e, gId) => {
-    gameId = gId;
+ipcMain.on("clear-cache", async () => {
+    await win.webContents.session.clearCache();
 });
 ipcMain.on("return-select", () => {
     autoLogin = true;
@@ -122,13 +178,23 @@ ipcMain.on("return-select", () => {
 ipcMain.on("save-user-data", (_e, data: SaveUserData) => {
     const {gameId, password, user, adminPassword} = data;
     saveUserData(gameId.toString(), {
-        password: Array.from(safeStorage.encryptString(password)),
+        password: password.length !== 0 ? Array.from(safeStorage.encryptString(password)) : [],
         user,
-        adminPassword: Array.from(safeStorage.encryptString(adminPassword))
+        adminPassword: password.length !== 0 ? Array.from(safeStorage.encryptString(adminPassword)) : []
     });
 });
-ipcMain.on("app-version",(event) => {
-    event.sender.send("app-version", app.getVersion());
+ipcMain.handle("get-user-data", (event, gameId: string) => {
+    return getLoginDetails(gameId);
+})
+
+ipcMain.handle("app-version", () => {
+    return app.getVersion();
+})
+ipcMain.handle("cache-path", () => {
+    return app.getPath("sessionData");
+})
+ipcMain.on("cache-path", (event, path: string) => {
+    app.setPath("sessionData", path);
 });
 
 function getUserData(): UserData {
@@ -148,8 +214,8 @@ function getLoginDetails(gameId: string): GameUserDataDecrypted {
     const adminPassword = new Uint8Array(userData.adminPassword);
     return {
         user: userData.user,
-        password: safeStorage.decryptString(Buffer.from(password)),
-        adminPassword: safeStorage.decryptString(Buffer.from(adminPassword)),
+        password: password.length !== 0 ? (safeStorage.isEncryptionAvailable() ? safeStorage.decryptString(Buffer.from(password)) : "") : "",
+        adminPassword: password.length !== 0 ? (safeStorage.isEncryptionAvailable() ? safeStorage.decryptString(Buffer.from(adminPassword)) : "") : "",
     };
 }
 

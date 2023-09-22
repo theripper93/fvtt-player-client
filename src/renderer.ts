@@ -1,19 +1,8 @@
+// noinspection JSIgnoredPromiseFromCall
+
 import './style.css';
 
 let appVersion: string;
-
-
-window.api.receive("app-version", async (version) => {
-    appVersion = version;
-
-    document.querySelector("#current-version").textContent = appVersion;
-
-    const latestVersion: string = (await (await fetch("https://api.github.com/repos/theripper93/fvtt-player-client/releases/latest", {mode: "cors"})).json())["tag_name"];
-    document.querySelector("#latest-version").textContent = latestVersion;
-    if (compareSemver(appVersion, latestVersion) < 0) {
-        document.querySelector(".update-available").classList.remove("hidden2");
-    }
-});
 
 
 function compareSemver(a: string, b: string): number {
@@ -64,14 +53,25 @@ document.querySelector("#save-app-config").addEventListener("click", (e) => {
     const accentColor = (closeUserConfig.querySelector("#accent-color") as HTMLInputElement).value;
     const backgroundColor = (closeUserConfig.querySelector("#background-color") as HTMLInputElement).value;
     const textColor = (closeUserConfig.querySelector("#text-color") as HTMLInputElement).value;
-    const config = {accentColor, backgroundColor, background, textColor} as AppConfig;
+    const cachePath = (closeUserConfig.querySelector("#cache-path") as HTMLInputElement).value;
+    const autoCacheClear = (closeUserConfig.querySelector("#cache-path") as HTMLInputElement).checked;
+    const config = {accentColor, backgroundColor, background, textColor, cachePath, autoCacheClear} as AppConfig;
+    console.log(config);
     window.localStorage.setItem("appConfig", JSON.stringify(config));
     applyAppConfig(config);
-    // window.api.send("save-user-data", {gameId, user, password, adminPassword});
+});
+
+document.querySelector("#clear-cache").addEventListener("click", () => {
+    window.api.send("clear-cache");
 });
 
 async function createGameItem(game: GameConfig) {
     const li = document.importNode(gameItemTemplate, true);
+    const loginData = await window.api.request("get-user-data", (game.id ?? game.name).toString()) as GameUserDataDecrypted;
+
+    (li.querySelector("#user-name") as HTMLInputElement).value = loginData.user;
+    (li.querySelector("#user-password") as HTMLInputElement).value = loginData.password;
+    (li.querySelector("#admin-password") as HTMLInputElement).value = loginData.adminPassword;
     li.querySelector("a").innerText = game.name;
     li.querySelector(".game-button").addEventListener("click", () => {
         window.api.send("open-game", game.id ?? game.name);
@@ -110,6 +110,7 @@ function applyAppConfig(config: AppConfig) {
         document.body.style.backgroundImage = `url(${config.background})`;
         (document.querySelector("#background-image") as HTMLInputElement).value = config.background;
     }
+
     if (config.textColor) {
         document.documentElement.style.setProperty("--color-text-primary", config.textColor);
         (document.querySelector("#text-color") as HTMLInputElement).value = config.textColor.substring(0, 7);
@@ -122,6 +123,10 @@ function applyAppConfig(config: AppConfig) {
         document.documentElement.style.setProperty("--color-accent", config.accentColor);
         (document.querySelector("#accent-color") as HTMLInputElement).value = config.accentColor.substring(0, 7);
     }
+    if (config.cachePath) {
+        (document.querySelector("#cache-path") as HTMLInputElement).value = config.cachePath;
+        window.api.send("cache-path", config.cachePath);
+    }
 }
 
 async function createGameList() {
@@ -133,12 +138,18 @@ async function createGameList() {
     } catch (e) {
         console.log("Failed to load config.json");
     }
-    config = {...config, ...(JSON.parse(window.localStorage.getItem("appConfig") || "{}") as AppConfig)}
+    config = {...config, ...(JSON.parse(window.localStorage.getItem("appConfig") || "{}") as AppConfig)};
 
+    appVersion = await window.api.request("app-version") as string;
+    document.querySelector("#current-version").textContent = appVersion;
+
+    const latestVersion: string = (await (await fetch("https://api.github.com/repos/theripper93/fvtt-player-client/releases/latest", {mode: "cors"})).json())["tag_name"];
+    document.querySelector("#latest-version").textContent = latestVersion;
+    if (compareSemver(appVersion, latestVersion) < 0) {
+        document.querySelector(".update-available").classList.remove("hidden2");
+    }
 
     applyAppConfig(config);
-
-    window.api.send("app-version");
 
 
     gameItemList.childNodes.forEach((value) => {
