@@ -108,9 +108,7 @@ function createWindow(): BrowserWindow {
             window.webContents.executeJavaScript(`
                 if ($('#server-button').length === 0) {
                     const serverSelectButton = $('<button type="button" data-action="returnServerSelect" id="server-button" data-tooltip="Return to Server Select"><i class="fas fa-server"></i></button>');
-                    serverSelectButton.on('click', async () => {
-                        window.location.href = await window.api.serverSelectPath();
-                    });
+                    serverSelectButton.on('click', () => window.api.returnToServerSelect());
                     setTimeout(() => {
                         $('nav#setup-menu').append(serverSelectButton)
                     }, 200);
@@ -121,9 +119,7 @@ function createWindow(): BrowserWindow {
             window.webContents.executeJavaScript(`
                 if ($('#server-button').length === 0) {
                     const serverSelectButton = $('<button type="button" class="bright" id="server-button"> <i class="fa-solid fa-server"></i>Return to Server Select</button>');
-                    serverSelectButton.on('click', async () => {
-                        window.location.href = await window.api.serverSelectPath();
-                    });
+                    serverSelectButton.on('click', () => window.api.returnToServerSelect());
                     setTimeout(() => {
                         $('.form-footer').append(serverSelectButton)
                     }, 200);
@@ -134,9 +130,7 @@ function createWindow(): BrowserWindow {
             window.webContents.executeJavaScript(`
                 if ($('#server-button').length === 0) {
                     const serverSelectButton = $('<button type="button" class="bright" id="server-button"> <i class="fa-solid fa-server"></i>Return to Server Select</button>');
-                    serverSelectButton.on('click', async () => {
-                        window.location.href = await window.api.serverSelectPath();
-                    });
+                    serverSelectButton.on('click', () => window.api.returnToServerSelect());
                     setTimeout(() => {
                         $('.form-footer').append(serverSelectButton)
                     }, 200);
@@ -196,9 +190,7 @@ function createWindow(): BrowserWindow {
                     Hooks.on('renderSettings', function (settings, html) {
                         if (html.find('#server-button').length > 0) return;
                         const serverSelectButton = $(\`<button id="server-button" data-action="home"><i class="fas fa-server"></i>Return to Server Select</button>\`);
-                        serverSelectButton.on('click', async () => {
-                            window.location.href = await window.api.serverSelectPath();
-                        });
+                        serverSelectButton.on('click', () => window.api.returnToServerSelect());
                         html.find('#settings-access').append(serverSelectButton);
                     });
                 `);
@@ -250,6 +242,16 @@ ipcMain.on("cache-path", (_, cachePath: string) => {
     currentData.cachePath = cachePath;
     fs.writeFileSync(path.join(app.getPath("userData"), "userData.json"), JSON.stringify(currentData));
 });
+
+ipcMain.on("return-select", (e) => {
+    windowsData[e.sender.id].autoLogin = true;
+    if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+        e.sender.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+    } else {
+        e.sender.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
+    }
+});
+
 
 
 app.on('activate', (_, hasVisibleWindows) => {

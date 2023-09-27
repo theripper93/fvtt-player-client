@@ -31,7 +31,7 @@ export type ContextBridgeApi = {
     appVersion: () => Promise<string>;
     cachePath: () => Promise<string>;
     setCachePath: (cachePath: string) => void;
-    serverSelectPath: () => Promise<string>;
+    returnToServerSelect: () => void;
     saveUserData: (data: SaveUserData) => void;
     openGame: (id: number | string) => void;
     clearCache: () => void;
@@ -56,8 +56,8 @@ const exposedApi: ContextBridgeApi = {
     cachePath() {
         return ipcRenderer.invoke("cache-path") as Promise<string>;
     },
-    serverSelectPath() {
-        return ipcRenderer.invoke("select-path") as Promise<string>;
+    returnToServerSelect() {
+        ipcRenderer.send("return-select");
     },
     saveUserData(data: SaveUserData) {
         ipcRenderer.send("save-user-data", data);
