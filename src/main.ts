@@ -13,12 +13,41 @@ app.commandLine.appendSwitch("enable-features", "SharedArrayBuffer");
 
 //app.commandLine.appendSwitch("ignore-certificate-errors");
 
-let win: BrowserWindow;
+function getUserData(): UserData {
+    try {
+        const json = fs.readFileSync(path.join(app.getPath("userData"), "userData.json")).toString();
+        return JSON.parse(json);
+    } catch (e) {
+        return {};
+    }
+}
 
-let gameId: string;
+{
+    const userData = getUserData();
+    if (userData.cachePath) {
+        app.setPath("sessionData", userData.cachePath);
+    }
+}
 
-const createWindow = () => {
-    win = new BrowserWindow({
+const windows = new Set<BrowserWindow>();
+
+/** Check if single instance, if not, simply quit new instance */
+const isSingleInstance = app.requestSingleInstanceLock();
+if (!isSingleInstance) {
+    app.quit()
+} else {
+    app.on('second-instance', () => {
+        createWindow();
+    });
+}
+
+
+const windowsData = {} as WindowsData;
+
+// let win: BrowserWindow;
+
+function createWindow(): BrowserWindow {
+    let window = new BrowserWindow({
         show: false, width: 800, height: 600, webPreferences: {
             preload: path.join(__dirname, "preload.js"),
             nodeIntegration: false,
@@ -26,62 +55,61 @@ const createWindow = () => {
             webgl: true
         },
     });
+
     // Fix Popouts
-    win.webContents.setUserAgent(win.webContents.getUserAgent().replace("Electron", ""));
-    win.webContents.on('did-start-loading', () => {
-        win.setTitle(app.getName() + ' * Loading ....');
-        win.setProgressBar(2, {mode: 'indeterminate'}) // second parameter optional
+    window.webContents.setUserAgent(window.webContents.getUserAgent().replace("Electron", ""));
+    window.webContents.on('did-start-loading', () => {
+        window.setTitle(window.webContents.getTitle() + ' * Loading ....');
+        window.setProgressBar(2, {mode: 'indeterminate'}) // second parameter optional
     });
 
-    win.webContents.on('did-finish-load', () => {
-        win.setTitle(app.getName());
-        win.setProgressBar(-1);
+    window.webContents.on('did-finish-load', () => {
+        window.setTitle(window.webContents.getTitle());
+        window.setProgressBar(-1);
     });
-    win.webContents.setWindowOpenHandler(() => {
+    window.webContents.on('did-stop-loading', () => {
+        window.setTitle(window.webContents.getTitle());
+        window.setProgressBar(-1);
+    });
+    window.webContents.setWindowOpenHandler(() => {
         return {
             action: 'allow',
             overrideBrowserWindowOptions: {
-                parent: win,
+                parent: window,
                 autoHideMenuBar: true,
             }
         }
     });
 
-    win.menuBarVisible = false;
+    window.menuBarVisible = false;
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-        win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+        window.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
     } else {
-        win.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
+        window.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
     }
-    win.maximize();
-    win.show();
-};
 
-let autoLogin = true;
-app.whenReady().then(() => {
-    createWindow();
-    win.webContents.on('before-input-event', (event, input) => {
+    window.webContents.on('before-input-event', (event, input) => {
         if (input.key === 'F12') {
-            win.webContents.toggleDevTools();
+            window.webContents.toggleDevTools();
             event.preventDefault();
         } else if (input.key === 'F5' && input.control) {
-            win.webContents.reloadIgnoringCache()
+            window.webContents.reloadIgnoringCache()
             event.preventDefault();
         } else if (input.key === 'F5') {
-            win.webContents.reload()
+            window.webContents.reload()
             event.preventDefault();
         }
     });
-    win.webContents.on("did-finish-load", () => {
-        const url = win.webContents.getURL();
+    window.webContents.on("did-finish-load", () => {
+        const url = window.webContents.getURL();
         if (!url.endsWith("/join") && !url.endsWith("/auth") && !url.endsWith("/setup"))
             return;
         if (url.endsWith("/setup")) {
-            win.webContents.executeJavaScript(`
+            window.webContents.executeJavaScript(`
                 if ($('#server-button').length === 0) {
                     const serverSelectButton = $('<button type="button" data-action="returnServerSelect" id="server-button" data-tooltip="Return to Server Select"><i class="fas fa-server"></i></button>');
-                    serverSelectButton.on('click', () => {
-                        window.api.send("return-select");
+                    serverSelectButton.on('click', async () => {
+                        window.location.href = await window.api.serverSelectPath();
                     });
                     setTimeout(() => {
                         $('nav#setup-menu').append(serverSelectButton)
@@ -90,11 +118,11 @@ app.whenReady().then(() => {
             `);
         }
         if (url.endsWith("/auth")) {
-            win.webContents.executeJavaScript(`
+            window.webContents.executeJavaScript(`
                 if ($('#server-button').length === 0) {
                     const serverSelectButton = $('<button type="button" class="bright" id="server-button"> <i class="fa-solid fa-server"></i>Return to Server Select</button>');
-                    serverSelectButton.on('click', () => {
-                        window.api.send("return-select");
+                    serverSelectButton.on('click', async () => {
+                        window.location.href = await window.api.serverSelectPath();
                     });
                     setTimeout(() => {
                         $('.form-footer').append(serverSelectButton)
@@ -103,11 +131,11 @@ app.whenReady().then(() => {
             `);
         }
         if (url.endsWith("/join")) {
-            win.webContents.executeJavaScript(`
+            window.webContents.executeJavaScript(`
                 if ($('#server-button').length === 0) {
                     const serverSelectButton = $('<button type="button" class="bright" id="server-button"> <i class="fa-solid fa-server"></i>Return to Server Select</button>');
-                    serverSelectButton.on('click', () => {
-                        window.api.send("return-select");
+                    serverSelectButton.on('click', async () => {
+                        window.location.href = await window.api.serverSelectPath();
                     });
                     setTimeout(() => {
                         $('.form-footer').append(serverSelectButton)
@@ -117,9 +145,9 @@ app.whenReady().then(() => {
         }
         if (!url.endsWith("/join") && !url.endsWith("/auth"))
             return;
-        const userData = getLoginDetails(gameId);
+        const userData = getLoginDetails(windowsData[window.webContents.id].gameId);
         if (!userData.user) return;
-        win.webContents.executeJavaScript(`
+        window.webContents.executeJavaScript(`
             async function waitForLoad() {
                 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
                 while (!document.querySelector('select[name="userid"]') && !document.querySelector('input[name="adminPassword"]')) {
@@ -145,7 +173,7 @@ app.whenReady().then(() => {
                     preventDefault: () => {
                     }, target: document.getElementById("join-game")
                 }
-                if ("${autoLogin}" === "true") {
+                if (${windowsData[window.webContents.id].autoLogin}) {
                     ui.join._onSubmit(fakeEvent);
                 } else {
                     document.querySelector(".form-footer button[name=join]").addEventListener("click", () => {
@@ -157,77 +185,80 @@ app.whenReady().then(() => {
             waitForLoad();
 
         `);
-        autoLogin = false;
+        windowsData[window.webContents.id].autoLogin = false;
 
-        win.webContents.on("did-start-navigation", async (e) => {
+        window.webContents.on("did-start-navigation", async (e) => {
             if (e.isSameDocument) return;
             if (e.url.startsWith("about")) return;
             if (e.url.endsWith("/game")) {
-                win.webContents.executeJavaScript(`
+                window.webContents.executeJavaScript(`
                     // Add back button
                     Hooks.on('renderSettings', function (settings, html) {
                         if (html.find('#server-button').length > 0) return;
                         const serverSelectButton = $(\`<button id="server-button" data-action="home"><i class="fas fa-server"></i>Return to Server Select</button>\`);
-                        serverSelectButton.on('click', () => {
-                            window.api.send("return-select");
+                        serverSelectButton.on('click', async () => {
+                            window.location.href = await window.api.serverSelectPath();
                         });
                         html.find('#settings-access').append(serverSelectButton);
                     });
                 `);
             }
         })
+
     });
 
-});
+    window.once('ready-to-show', () => {
+        window.maximize();
+        window.show();
+    });
+    window.on('closed', () => {
+        windows.delete(window);
+        window = null;
+    });
+    windows.add(window);
+    windowsData[window.webContents.id] = {autoLogin: true} as WindowData;
+    return window;
+}
 
-ipcMain.on("open-game", (_e, gId) => {
-    gameId = gId;
-});
-ipcMain.on("clear-cache", async () => {
-    await win.webContents.session.clearCache();
-});
-ipcMain.on("return-select", () => {
-    autoLogin = true;
-    if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-        win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
-    } else {
-        win.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
-    }
-});
+app.whenReady().then(() => createWindow());
+ipcMain.on("open-game", (e, gId) => windowsData[e.sender.id].gameId = gId);
+ipcMain.on("clear-cache", async (event) => event.sender.session.clearCache());
 
 ipcMain.on("save-user-data", (_e, data: SaveUserData) => {
     const {gameId, password, user, adminPassword} = data;
-    saveUserData(gameId.toString(), {
+    saveUserData(gameId, {
         password: password.length !== 0 ? Array.from(safeStorage.encryptString(password)) : [],
         user,
         adminPassword: password.length !== 0 ? Array.from(safeStorage.encryptString(adminPassword)) : []
     });
 });
-ipcMain.handle("get-user-data", (event, gameId: string) => {
-    return getLoginDetails(gameId);
-})
+ipcMain.handle("get-user-data", (_, gameId: GameId) => getLoginDetails(gameId))
 
-ipcMain.handle("app-version", () => {
-    return app.getVersion();
-})
-ipcMain.handle("cache-path", () => {
-    return app.getPath("sessionData");
-})
-ipcMain.on("cache-path", (event, path: string) => {
-    app.setPath("sessionData", path);
+ipcMain.handle("app-version", () => app.getVersion())
+
+ipcMain.handle("select-path", (e) => {
+    windowsData[e.sender.id].autoLogin = true;
+    if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+        return MAIN_WINDOW_VITE_DEV_SERVER_URL;
+    } else {
+        return path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`);
+    }
+});
+ipcMain.handle("cache-path", () => app.getPath("sessionData"))
+ipcMain.on("cache-path", (_, cachePath: string) => {
+    const currentData = getUserData();
+    currentData.cachePath = cachePath;
+    fs.writeFileSync(path.join(app.getPath("userData"), "userData.json"), JSON.stringify(currentData));
 });
 
-function getUserData(): UserData {
-    try {
-        const json = fs.readFileSync(path.join(app.getPath("userData"), "userData.json")).toString();
-        return JSON.parse(json);
-    } catch (e) {
-        return {};
+
+app.on('activate', (_, hasVisibleWindows) => {
+    if (!hasVisibleWindows) {
+        createWindow();
     }
-}
+});
 
-
-function getLoginDetails(gameId: string): GameUserDataDecrypted {
+function getLoginDetails(gameId: GameId): GameUserDataDecrypted {
     const userData = getUserData()[gameId];
     if (!userData) return {user: "", password: "", adminPassword: ""};
     const password = new Uint8Array(userData.password);
@@ -240,7 +271,7 @@ function getLoginDetails(gameId: string): GameUserDataDecrypted {
     };
 }
 
-function saveUserData(gameId: string, data: GameUserData) {
+function saveUserData(gameId: GameId, data: GameUserData) {
     const currentData = getUserData();
     if (currentData[gameId]) {
         if (data.user === "") data.user = currentData[gameId].user;

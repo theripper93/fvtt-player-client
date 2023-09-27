@@ -237,6 +237,21 @@ table, th, td {
     pointer-events: all;
 }
 
+.config-export {
+    box-shadow: 0 0 5px black;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease-in-out;
+    border: 2px solid var(--color-text-primary);
+    padding: 0.5rem;
+    background: var(--color-background);
+    pointer-events: all;
+}
+
+.config-export code {
+    user-select: text;
+}
+
 .update-available {
     position: absolute;
     bottom: 0;
