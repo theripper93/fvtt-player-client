@@ -4,10 +4,12 @@
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const MAIN_WINDOW_VITE_NAME: string;
 
+type GameId = string | number;
+
 type GameConfig = {
     name: string;
     url: string;
-    id?: number;
+    id?: GameId;
 }
 
 type AppConfig = {
@@ -22,7 +24,8 @@ type AppConfig = {
 
 
 type UserData = {
-    [index: string]: GameUserData
+    cachePath?: string;
+    [index: GameId]: GameUserData;
 }
 
 type GameUserData = {
@@ -36,4 +39,13 @@ type GameUserDataDecrypted = {
     adminPassword?: string;
 }
 
-type SaveUserData = { gameId: number | string; password: string; user: string; adminPassword: string };
+type SaveUserData = { gameId: GameId; password: string; user: string; adminPassword: string };
+
+type WindowData = {
+    gameId: GameId;
+    autoLogin: boolean;
+}
+
+type WindowsData = {
+    [index: number]: WindowData;
+}
