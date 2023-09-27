@@ -11,8 +11,8 @@ function compareSemver(a: string, b: string): number {
 
     let currentA, currentB: number;
     for (let i = 0; i < splitA.length; i++) {
-        currentA = Number(splitA[0]);
-        currentB = Number(splitB[0]);
+        currentA = Number(splitA[i]);
+        currentB = Number(splitB[i]);
         if (currentA > currentB) {
             return 1;
         } else if (currentA < currentB) {
@@ -21,7 +21,6 @@ function compareSemver(a: string, b: string): number {
     }
     return 0
 }
-
 
 document.querySelector("#add-game").addEventListener("click", () => {
     const gameUrlField = document.querySelector("#game-url") as HTMLInputElement;
