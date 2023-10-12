@@ -131,9 +131,7 @@ function applyAppConfig(config: AppConfig) {
 async function createGameList() {
     let config: AppConfig;
     try {
-        config = await fetch("config.json").then((res) => {
-            return res.json();
-        }) as AppConfig;
+        config = await window.api.appConfig();
     } catch (e) {
         console.log("Failed to load config.json");
     }
