@@ -212,6 +212,15 @@ ipcMain.handle("get-user-data", (_, gameId: GameId) => getLoginDetails(gameId))
 
 ipcMain.handle("app-version", () => app.getVersion())
 
+ipcMain.handle("app-config", () => {
+    try {
+        const json = fs.readFileSync(path.join(app.getAppPath(), "config.json")).toString();
+        return JSON.parse(json) as AppConfig;
+    } catch (e) {
+        return {} as AppConfig;
+    }
+});
+
 ipcMain.handle("select-path", (e) => {
     windowsData[e.sender.id].autoLogin = true;
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
