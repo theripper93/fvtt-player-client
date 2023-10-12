@@ -16,57 +16,65 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 
-type SendChannels =
-    "toMain"
-    | "open-game"
-    | "save-user-data"
-    | "return-select"
-    | "app-version"
-    | "cache-path"
-    | "clear-cache";
-type ReceiveChannels = "fromMain" | "save-user-data" | "app-version" | "cache-path";
-type RequestChannels = "app-version" | "cache-path" | "get-user-data";
-type SendOnChannel = (channel: SendChannels, data?: number | string | SaveUserData) => void;
-type ReceiveOnChannel = ((channel: ReceiveChannels, func: (...args: unknown[]) => void) => void)
-type RequestOnChannel = ((channel: RequestChannels, ...args: unknown[]) => Promise<unknown>)
+// type SendChannels = "toMain" | "open-game" | "save-user-data" | "app-version" | "cache-path" | "clear-cache";
+// type ReceiveChannels = "fromMain" | "save-user-data" | "app-version" | "cache-path";
+// type RequestChannels = "app-version" | "cache-path" | "get-user-data" | "select-path";
+// type SendOnChannel = (channel: SendChannels, data?: number | string | SaveUserData) => void;
+// type ReceiveOnChannel = ((channel: ReceiveChannels, func: (...args: unknown[]) => void) => void)
+// type RequestOnChannel = ((channel: RequestChannels, ...args: unknown[]) => Promise<unknown>)
 
 export type ContextBridgeApi = {
-    send: SendOnChannel;
-    receive: ReceiveOnChannel;
-    request: RequestOnChannel;
+    // send: SendOnChannel;
+    // receive: ReceiveOnChannel;
+    // request: RequestOnChannel;
+    userData: (gameId: string | number) => Promise<GameUserDataDecrypted>;
+    appVersion: () => Promise<string>;
+    appConfig: () => Promise<AppConfig>;
+    cachePath: () => Promise<string>;
+    setCachePath: (cachePath: string) => void;
+    returnToServerSelect: () => void;
+    saveUserData: (data: SaveUserData) => void;
+    openGame: (id: number | string) => void;
+    clearCache: () => void;
 }
 const exposedApi: ContextBridgeApi = {
-    request: (channel: RequestChannels, ...args: unknown[]): Promise<unknown> => {
-        if (channel === "get-user-data") {
-            if (args.length !== 1 || typeof args[0] !== "string")
-                throw new Error("Invalid arguments for get-user-data");
-            return ipcRenderer.invoke(channel, args[0] as string) as Promise<GameUserDataDecrypted>;
-
-        }
-        if (channel === "app-version") {
-            if (args.length != 0)
-                throw new Error("No arguments allowed for app-version");
-            return ipcRenderer.invoke(channel) as Promise<string>;
-
-        }
-        if (channel === "cache-path") {
-            if (args.length != 0)
-                throw new Error("No arguments allowed for cache-path");
-            return ipcRenderer.invoke(channel) as Promise<string>;
-        }
-        return ipcRenderer.invoke(channel, ...args);
+    // request(channel: RequestChannels, ...args: unknown[]): Promise<unknown> {
+    //     return ipcRenderer.invoke(channel, ...args);
+    // },
+    // receive(channel: ReceiveChannels, func: (...args: unknown[]) => void) {
+    //     // Deliberately strip event as it includes `sender`
+    //     ipcRenderer.on(channel, (event, ...args) => func(...args));
+    // },
+    // send(channel: SendChannels, data?: number | string | SaveUserData) {
+    //     ipcRenderer.send(channel, data);
+    // },
+    userData(gameId: string | number) {
+        return ipcRenderer.invoke("get-user-data", gameId) as Promise<GameUserDataDecrypted>;
     },
-    receive: (channel: ReceiveChannels, func: (...args: unknown[]) => void) => {
-        // Deliberately strip event as it includes `sender`
-        ipcRenderer.on(channel, (event, ...args) => func(...args));
+    appConfig() {
+        return ipcRenderer.invoke("app-config") as Promise<AppConfig>;
     },
-    send: (channel: SendChannels, data?: number | string | SaveUserData) => {
-        if (channel === "save-user-data" && !(data as SaveUserData).user)
-            throw new Error("Invalid Argument data");
-        if (channel === "open-game" && !(typeof data === "number" || typeof data === "string"))
-            throw new Error("Invalid Argument data");
-        ipcRenderer.send(channel, data);
-    }
+    appVersion() {
+        return ipcRenderer.invoke("app-version") as Promise<string>;
+    },
+    cachePath() {
+        return ipcRenderer.invoke("cache-path") as Promise<string>;
+    },
+    returnToServerSelect() {
+        ipcRenderer.send("return-select");
+    },
+    saveUserData(data: SaveUserData) {
+        ipcRenderer.send("save-user-data", data);
+    },
+    openGame(id: number | string) {
+        ipcRenderer.send("open-game", id);
+    },
+    clearCache() {
+        ipcRenderer.send("clear-cache");
+    },
+    setCachePath(cachePath: string) {
+        ipcRenderer.send("cache-path", cachePath);
+    },
 
 
 }

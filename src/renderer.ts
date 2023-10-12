@@ -11,8 +11,8 @@ function compareSemver(a: string, b: string): number {
 
     let currentA, currentB: number;
     for (let i = 0; i < splitA.length; i++) {
-        currentA = Number(splitA[0]);
-        currentB = Number(splitB[0]);
+        currentA = Number(splitA[i]);
+        currentB = Number(splitB[i]);
         if (currentA > currentB) {
             return 1;
         } else if (currentA < currentB) {
@@ -21,7 +21,6 @@ function compareSemver(a: string, b: string): number {
     }
     return 0
 }
-
 
 document.querySelector("#add-game").addEventListener("click", () => {
     const gameUrlField = document.querySelector("#game-url") as HTMLInputElement;
@@ -62,19 +61,19 @@ document.querySelector("#save-app-config").addEventListener("click", (e) => {
 });
 
 document.querySelector("#clear-cache").addEventListener("click", () => {
-    window.api.send("clear-cache");
+    window.api.clearCache();
 });
 
 async function createGameItem(game: GameConfig) {
     const li = document.importNode(gameItemTemplate, true);
-    const loginData = await window.api.request("get-user-data", (game.id ?? game.name).toString()) as GameUserDataDecrypted;
+    const loginData = await window.api.userData(game.id ?? game.name) as GameUserDataDecrypted;
 
     (li.querySelector("#user-name") as HTMLInputElement).value = loginData.user;
     (li.querySelector("#user-password") as HTMLInputElement).value = loginData.password;
     (li.querySelector("#admin-password") as HTMLInputElement).value = loginData.adminPassword;
     li.querySelector("a").innerText = game.name;
     li.querySelector(".game-button").addEventListener("click", () => {
-        window.api.send("open-game", game.id ?? game.name);
+        window.api.openGame(game.id ?? game.name);
         window.location.href = game.url;
     });
     gameItemList.appendChild(li);
@@ -98,7 +97,7 @@ async function createGameItem(game: GameConfig) {
         const password = (closeUserConfig.querySelector("#user-password") as HTMLInputElement).value;
         const adminPassword = (closeUserConfig.querySelector("#admin-password") as HTMLInputElement).value;
         console.log({gameId, user, password, adminPassword})
-        window.api.send("save-user-data", {gameId, user, password, adminPassword} as SaveUserData);
+        window.api.saveUserData({gameId, user, password, adminPassword} as SaveUserData);
     });
 }
 
@@ -125,22 +124,20 @@ function applyAppConfig(config: AppConfig) {
     }
     if (config.cachePath) {
         (document.querySelector("#cache-path") as HTMLInputElement).value = config.cachePath;
-        window.api.send("cache-path", config.cachePath);
+        window.api.setCachePath(config.cachePath);
     }
 }
 
 async function createGameList() {
     let config: AppConfig;
     try {
-        config = await fetch("config.json").then((res) => {
-            return res.json();
-        }) as AppConfig;
+        config = await window.api.appConfig();
     } catch (e) {
         console.log("Failed to load config.json");
     }
     config = {...config, ...(JSON.parse(window.localStorage.getItem("appConfig") || "{}") as AppConfig)};
 
-    appVersion = await window.api.request("app-version") as string;
+    appVersion = await window.api.appVersion();
     document.querySelector("#current-version").textContent = appVersion;
 
     const latestVersion: string = (await (await fetch("https://api.github.com/repos/theripper93/fvtt-player-client/releases/latest", {mode: "cors"})).json())["tag_name"];

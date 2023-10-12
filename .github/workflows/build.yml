@@ -4,6 +4,8 @@ on:
   release:
     types:
       - created
+env:
+  node_version: 18
 jobs:
   build-linux:
     runs-on: ubuntu-latest
@@ -11,7 +13,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: ${{ env.node_version }}
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,29 +35,19 @@ jobs:
         run: yarn make --platform linux
 
 
-
-      - name: Upload Zip to Release
-        uses: shogo82148/actions-upload-release-asset@v1
+      - name: Rename output files
+        run: |
+          mv out/make/deb/x64/vtt-desktop-client_${{ github.event.release.tag_name }}_amd64.deb ./vtt-desktop-client_${{ github.event.release.tag_name }}_amd64.deb
+          mv out/make/rpm/x64/vtt-desktop-client-${{ github.event.release.tag_name }}-1.x86_64.rpm ./vtt-desktop-client-${{ github.event.release.tag_name }}-1.x86_64.rpm
+          mv out/make/zip/linux/x64/vtt-desktop-client-linux-x64-${{ github.event.release.tag_name }}.zip ./vtt-desktop-client-linux-x64-${{ github.event.release.tag_name }}.zip
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: out/make/deb/x64/vtt-desktop-client_${{ github.event.release.tag_name }}_amd64.deb
-          asset_name: vtt-desktop-client_${{ github.event.release.tag_name }}_amd64.deb
-          asset_content_type: application/zip
-
-      - name: Upload Zip to Release 2
-        uses: shogo82148/actions-upload-release-asset@v1
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: out/make/rpm/x64/vtt-desktop-client-${{ github.event.release.tag_name }}-1.x86_64.rpm
-          asset_name: vtt-desktop-client-${{ github.event.release.tag_name }}-1.x86_64.rpm
-          asset_content_type: application/zip
-      - name: Upload Zip to Release 3
-        uses: shogo82148/actions-upload-release-asset@v1
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: out/make/zip/linux/x64/vtt-desktop-client-linux-x64-${{ github.event.release.tag_name }}.zip
-          asset_name: vtt-desktop-client-linux-x64-${{ github.event.release.tag_name }}.zip
-          asset_content_type: application/zip
+          name: linux-outputs
+          path: |
+            vtt-desktop-client_${{ github.event.release.tag_name }}_amd64.deb
+            vtt-desktop-client-${{ github.event.release.tag_name }}-1.x86_64.rpm
+            vtt-desktop-client-linux-x64-${{ github.event.release.tag_name }}.zip
 
 #      - name: Upload to Flathub
 #        uses: flatpak/flatpak-github-actions/flat-manager@v4
@@ -73,7 +65,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: ${{ env.node_version }}
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -86,20 +78,18 @@ jobs:
       - name: Build for macOS
         run: yarn make --platform darwin
 
-      - name: Upload Zip to Release
-        uses: shogo82148/actions-upload-release-asset@v1
+      - name: Rename output files
+        run: |
+          mv out/make/zip/darwin/x64/vtt-desktop-client-darwin-x64-${{ github.event.release.tag_name }}.zip ./vtt-desktop-client-macos-x64-${{ github.event.release.tag_name }}.zip
+          mv out/make/vtt-desktop-client-${{ github.event.release.tag_name }}-x64.dmg ./vtt-desktop-client-${{ github.event.release.tag_name }}-x64.dmg
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: out/make/zip/darwin/x64/vtt-desktop-client-darwin-x64-${{ github.event.release.tag_name }}.zip
-          asset_name: vtt-desktop-client-macos-x64-${{ github.event.release.tag_name }}.zip
-          asset_content_type: application/zip
-      - name: Upload Zip to Release 2
-        uses: shogo82148/actions-upload-release-asset@v1
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: out/make/vtt-desktop-client-${{ github.event.release.tag_name }}-x64.dmg
-          asset_name: vtt-desktop-client-${{ github.event.release.tag_name }}-x64.dmg
-          asset_content_type: application/zip
+          name: macos-outputs
+          path: |
+            vtt-desktop-client-macos-x64-${{ github.event.release.tag_name }}.zip
+            vtt-desktop-client-${{ github.event.release.tag_name }}-x64.dmg
 
   build-windows:
     runs-on: windows-latest
@@ -107,7 +97,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: ${{ env.node_version }}
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -120,22 +110,48 @@ jobs:
       - name: Build for Windows
         run: yarn make --platform win32
 
-      - name: Zip Make Folder
+      - name: Rename output files
         run: |
-          $outputPath = "$PWD\out\win64.zip"
-          Compress-Archive -Path "out\make\squirrel.windows\x64" -DestinationPath $outputPath
+          Move-Item -Path "out\make\squirrel.windows\x64\vtt-desktop-client-${{ github.event.release.tag_name }} Setup.exe" -Destination ".\vtt-desktop-client-windows-x64-${{ github.event.release.tag_name }}-setup.exe"
+          Move-Item -Path "out\make\zip\win32\x64\vtt-desktop-client-win32-x64-${{ github.event.release.tag_name }}.zip" -Destination ".\vtt-desktop-client-windows-x64-portable-${{ github.event.release.tag_name }}.zip"
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-outputs
+          path: |
+            vtt-desktop-client-windows-x64-${{ github.event.release.tag_name }}-setup.exe
+            vtt-desktop-client-windows-x64-portable-${{ github.event.release.tag_name }}.zip
+  publish:
+    needs:
+      - build-linux
+      - build-macos
+      - build-windows
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download linux production artifacts for publication
+        uses: actions/download-artifact@v2
+        with:
+          name: linux-outputs
+          path: linux-outputs
 
-      - name: Upload Zip to Release
-        uses: shogo82148/actions-upload-release-asset@v1
+      - name: Download windows production artifacts for publication
+        uses: actions/download-artifact@v2
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: out/make/squirrel.windows/x64/vtt-desktop-client-${{ github.event.release.tag_name }} Setup.exe
-          asset_name: vtt-desktop-client-windows-x64-${{ github.event.release.tag_name }}-setup.exe
-          asset_content_type: application/vnd.microsoft.portable-executable
-      - name: Upload Zip to Release 2
-        uses: shogo82148/actions-upload-release-asset@v1
+          name: windows-outputs
+          path: windows-outputs
+
+      - name: Download macos production artifacts for publication
+        uses: actions/download-artifact@v2
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: out\make\zip\win32\x64\vtt-desktop-client-win32-x64-${{ github.event.release.tag_name }}.zip
-          asset_name: vtt-desktop-client-windows-x64-portable-${{ github.event.release.tag_name }}.zip
-          asset_content_type: application/zip
+          name: macos-outputs
+          path: macos-outputs
+
+      - name: Create release
+        id: create_version_release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          name: ${{ github.event.release.name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: "./linux-outputs/*, ./windows-outputs/*, ./macos-outputs/*"
+          body: ${{ github.event.release.body }}
