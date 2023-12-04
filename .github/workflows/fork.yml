@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "1.*"
+    tags-ignore:
+      - "1.*-*"
 jobs:
   fork:
     if: github.repository_owner == 'OmegaRogue'

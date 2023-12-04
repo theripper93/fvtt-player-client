@@ -37,7 +37,7 @@ jobs:
 
       - name: Rename output files
         run: |
-          mv out/make/deb/x64/vtt-desktop-client_${{ github.event.release.tag_name }}_amd64.deb ./vtt-desktop-client_${{ github.event.release.tag_name }}_amd64.deb
+          tag=${{ github.event.release.tag_name }} mv out/make/deb/x64/vtt-desktop-client_${tag//~/-}_amd64.deb ./vtt-desktop-client_${{ github.event.release.tag_name }}_amd64.deb
           mv out/make/rpm/x64/vtt-desktop-client-${{ github.event.release.tag_name }}-1.x86_64.rpm ./vtt-desktop-client-${{ github.event.release.tag_name }}-1.x86_64.rpm
           mv out/make/zip/linux/x64/vtt-desktop-client-linux-x64-${{ github.event.release.tag_name }}.zip ./vtt-desktop-client-linux-x64-${{ github.event.release.tag_name }}.zip
       - name: Archive production artifacts
