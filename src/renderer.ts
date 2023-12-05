@@ -68,6 +68,8 @@ async function createGameItem(game: GameConfig) {
     const li = document.importNode(gameItemTemplate, true);
     const loginData = await window.api.userData(game.id ?? game.name) as GameUserDataDecrypted;
 
+    li.id = game.cssId;
+
     (li.querySelector("#user-name") as HTMLInputElement).value = loginData.user;
     (li.querySelector("#user-password") as HTMLInputElement).value = loginData.password;
     (li.querySelector("#admin-password") as HTMLInputElement).value = loginData.adminPassword;
@@ -109,7 +111,10 @@ function applyAppConfig(config: AppConfig) {
         document.body.style.backgroundImage = `url(${config.background})`;
         (document.querySelector("#background-image") as HTMLInputElement).value = config.background;
     }
-
+    if (config.backgrounds && config.backgrounds.length > 0) {
+        const i = Math.floor(Math.random() * config.backgrounds.length);
+        document.body.style.backgroundImage = `url(${config.backgrounds[i]})`;
+    }
     if (config.textColor) {
         document.documentElement.style.setProperty("--color-text-primary", config.textColor);
         (document.querySelector("#text-color") as HTMLInputElement).value = config.textColor.substring(0, 7);
@@ -128,6 +133,13 @@ function applyAppConfig(config: AppConfig) {
     }
 }
 
+
+function addStyle(styleString: string) {
+    const style = document.createElement('style');
+    style.textContent = styleString;
+    document.head.append(style);
+}
+
 async function createGameList() {
     let config: AppConfig;
     try {
@@ -136,6 +148,8 @@ async function createGameList() {
         console.log("Failed to load config.json");
     }
     config = {...config, ...(JSON.parse(window.localStorage.getItem("appConfig") || "{}") as AppConfig)};
+
+    addStyle(config.customCSS ?? "");
 
     appVersion = await window.api.appVersion();
     document.querySelector("#current-version").textContent = appVersion;
