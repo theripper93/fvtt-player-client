@@ -26,12 +26,8 @@ jobs:
 #          sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 #          sudo flatpak install flathub org.freedesktop.Platform/x86_64/19.08 org.freedesktop.Sdk/x86_64/19.08 org.electronjs.Electron2.BaseApp/x86_64/stable -y
 
-      - name: Clear Yarn Cache
-        run: yarn cache clean
-
       - name: Install dependencies
         run: |
-          corepack enable
           yarn
           yarn version --no-git-tag-version --new-version ${{ github.event.release.tag_name }}
 
@@ -108,7 +104,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          corepack enable
           yarn
           yarn version --no-git-tag-version --new-version ${{ github.event.release.tag_name }}
 
