@@ -24,13 +24,13 @@ type AppConfig = {
     autoCacheClear?: boolean;
     customCSS?: string;
     ignoreCertificateErrors?: boolean;
-    experimentalMultiInstance?: boolean;
 }
 
 
 type UserData = {
     cachePath?: string;
     [index: GameId]: GameUserData;
+    app?: AppConfig;
 }
 
 type GameUserData = {
