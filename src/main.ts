@@ -215,7 +215,11 @@ ipcMain.handle("app-version", () => app.getVersion())
 ipcMain.handle("app-config", () => {
     try {
         const json = fs.readFileSync(path.join(app.getAppPath(), "config.json")).toString();
-        return JSON.parse(json) as AppConfig;
+        const appConfig = JSON.parse(json) as AppConfig;
+        if (appConfig.ignoreCertificateErrors) {
+            app.commandLine.appendSwitch("ignore-certificate-errors");
+        }
+        return appConfig;
     } catch (e) {
         return {} as AppConfig;
     }

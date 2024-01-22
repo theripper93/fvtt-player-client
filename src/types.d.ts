@@ -20,6 +20,7 @@ type AppConfig = {
     accentColor: string;
     cachePath?: string;
     autoCacheClear?: boolean;
+    ignoreCertificateErrors?: boolean;
 }
 
 
