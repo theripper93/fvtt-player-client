@@ -28,6 +28,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          corepack enable
           yarn
           yarn version --no-git-tag-version --new-version ${{ github.event.release.tag_name }}
 
@@ -99,14 +100,12 @@ jobs:
         with:
           node-version: ${{ env.node_version }}
 
-      - name: Install Yarn
-        run: npm install -g yarn@3.3.1
-
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
+          corepack enable
           yarn
           yarn version --no-git-tag-version --new-version ${{ github.event.release.tag_name }}
 
