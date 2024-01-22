@@ -99,6 +99,9 @@ jobs:
         with:
           node-version: ${{ env.node_version }}
 
+      - name: Install Yarn
+        run: npm install -g yarn@3.3.1
+
       - name: Checkout code
         uses: actions/checkout@v4
 
