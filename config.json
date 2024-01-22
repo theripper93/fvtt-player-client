@@ -3,5 +3,7 @@
   "background": "",
   "backgroundColor": "#003049ff",
   "textColor": "#eae2b7ff",
-  "accentColor": "#f77f00ff"
+  "accentColor": "#f77f00ff",
+  "ignoreCertificateErrors": false,
+  "experimentalMultiInstance": false
 }

@@ -1,7 +1,7 @@
 {
   "name": "vtt-desktop-client",
   "packageManager": "yarn@1.22.19",
-  "version": "1.5.0-alpha7",
+  "version": "1.5.0-alpha8",
   "license": "MIT",
   "description": "VTT Desktop Client",
   "main": ".vite/build/main.js",

@@ -169,7 +169,6 @@ async function createGameList() {
             value.remove();
         }
     );
-
     const gameList = window.localStorage.getItem("gameList") || "[]";
     let gameListJson: GameConfig[] = JSON.parse(gameList);
     gameListJson = [...config.games, ...gameListJson];

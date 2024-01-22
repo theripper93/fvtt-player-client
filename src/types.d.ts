@@ -23,6 +23,8 @@ type AppConfig = {
     cachePath?: string;
     autoCacheClear?: boolean;
     customCSS?: string;
+    ignoreCertificateErrors?: boolean;
+    experimentalMultiInstance?: boolean;
 }
 
 
