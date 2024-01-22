@@ -59,7 +59,7 @@ document.querySelector("#save-app-config").addEventListener("click", (e) => {
     const backgroundColor = (closeUserConfig.querySelector("#background-color") as HTMLInputElement).value;
     const textColor = (closeUserConfig.querySelector("#text-color") as HTMLInputElement).value;
     const cachePath = (closeUserConfig.querySelector("#cache-path") as HTMLInputElement).value;
-    const autoCacheClear = (closeUserConfig.querySelector("#cache-path") as HTMLInputElement).checked;
+    const autoCacheClear = (closeUserConfig.querySelector("#clear-cache-on-close") as HTMLInputElement).checked;
     const ignoreCertificateErrors = (closeUserConfig.querySelector("#insecure-ssl") as HTMLInputElement).checked;
     const config = {
         accentColor,
@@ -144,6 +144,12 @@ function applyAppConfig(config: AppConfig) {
     if (config.cachePath) {
         (document.querySelector("#cache-path") as HTMLInputElement).value = config.cachePath;
         window.api.setCachePath(config.cachePath);
+    }
+    if (config.ignoreCertificateErrors) {
+        (document.querySelector("#insecure-ssl") as HTMLInputElement).checked = config.ignoreCertificateErrors;
+    }
+    if (config.autoCacheClear) {
+        (document.querySelector("#clear-cache-on-close") as HTMLInputElement).checked = config.autoCacheClear;
     }
 }
 
