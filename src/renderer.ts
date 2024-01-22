@@ -22,20 +22,26 @@ function compareSemver(a: string, b: string): number {
     return 0
 }
 
-document.querySelector("#add-game").addEventListener("click", () => {
+async function updateGameList(task: (appConfig: AppConfig) => void) {
+    const appConfig = await window.api.localAppConfig();
+    task(appConfig);
+    window.api.saveAppConfig(appConfig);
+}
+
+
+document.querySelector("#add-game").addEventListener("click", async () => {
     const gameUrlField = document.querySelector("#game-url") as HTMLInputElement;
     const gameNameField = document.querySelector("#game-name") as HTMLInputElement;
     const gameUrl = gameUrlField.value;
     const gameName = gameNameField.value;
     if (!gameUrl || !gameName) return alert("Please enter a game name and url");
-    const gameList = window.localStorage.getItem("gameList") || "[]";
-    const gameListJson: GameConfig[] = JSON.parse(gameList);
     const newGameItem = {name: gameName, url: gameUrl, id: Math.round(Math.random() * 1000000)} as GameConfig;
-    gameListJson.push(newGameItem);
-    window.localStorage.setItem("gameList", JSON.stringify(gameListJson));
+    await updateGameList((appConfig) => {
+        appConfig.games.push(newGameItem);
+    });
     gameUrlField.value = "";
     gameNameField.value = "";
-    createGameItem(newGameItem);
+    await createGameItem(newGameItem);
 });
 
 
@@ -54,9 +60,18 @@ document.querySelector("#save-app-config").addEventListener("click", (e) => {
     const textColor = (closeUserConfig.querySelector("#text-color") as HTMLInputElement).value;
     const cachePath = (closeUserConfig.querySelector("#cache-path") as HTMLInputElement).value;
     const autoCacheClear = (closeUserConfig.querySelector("#cache-path") as HTMLInputElement).checked;
-    const config = {accentColor, backgroundColor, background, textColor, cachePath, autoCacheClear} as AppConfig;
+    const ignoreCertificateErrors = (closeUserConfig.querySelector("#insecure-ssl") as HTMLInputElement).checked;
+    const config = {
+        accentColor,
+        backgroundColor,
+        background,
+        textColor,
+        cachePath,
+        autoCacheClear,
+        ignoreCertificateErrors
+    } as AppConfig;
     console.log(config);
-    window.localStorage.setItem("appConfig", JSON.stringify(config));
+    window.api.saveAppConfig(config);
     applyAppConfig(config);
 });
 
@@ -67,6 +82,8 @@ document.querySelector("#clear-cache").addEventListener("click", () => {
 async function createGameItem(game: GameConfig) {
     const li = document.importNode(gameItemTemplate, true);
     const loginData = await window.api.userData(game.id ?? game.name) as GameUserDataDecrypted;
+
+    li.id = game.cssId;
 
     (li.querySelector("#user-name") as HTMLInputElement).value = loginData.user;
     (li.querySelector("#user-password") as HTMLInputElement).value = loginData.password;
@@ -79,12 +96,11 @@ async function createGameItem(game: GameConfig) {
     gameItemList.appendChild(li);
     const userConfiguration = li.querySelector("div.user-configuration") as HTMLDivElement;
     userConfiguration.style.height = `${userConfiguration.scrollHeight}px`;
-    userConfiguration.querySelector("#delete-game")?.addEventListener("click", () => {
-        const gameList = window.localStorage.getItem("gameList") || "[]";
-        const gameListJson: GameConfig[] = JSON.parse(gameList);
-        const newGameList = gameListJson.filter((g) => g.id !== game.id);
-        window.localStorage.setItem("gameList", JSON.stringify(newGameList));
-        createGameList();
+    userConfiguration.querySelector("#delete-game")?.addEventListener("click", async () => {
+        await updateGameList((appConfig) => {
+            appConfig.games = appConfig.games.filter((g) => g.id !== game.id);
+        });
+        await createGameList();
     });
     const gameId = game.id ?? game.name;
     const saveButton = userConfiguration.querySelector("#save-user-data") as HTMLButtonElement;
@@ -109,7 +125,10 @@ function applyAppConfig(config: AppConfig) {
         document.body.style.backgroundImage = `url(${config.background})`;
         (document.querySelector("#background-image") as HTMLInputElement).value = config.background;
     }
-
+    if (config.backgrounds && config.backgrounds.length > 0) {
+        const i = Math.floor(Math.random() * config.backgrounds.length);
+        document.body.style.backgroundImage = `url(${config.backgrounds[i]})`;
+    }
     if (config.textColor) {
         document.documentElement.style.setProperty("--color-text-primary", config.textColor);
         (document.querySelector("#text-color") as HTMLInputElement).value = config.textColor.substring(0, 7);
@@ -128,14 +147,40 @@ function applyAppConfig(config: AppConfig) {
     }
 }
 
+
+function addStyle(styleString: string) {
+    const style = document.createElement('style');
+    style.textContent = styleString;
+    document.head.append(style);
+}
+
+async function migrateConfig() {
+    let localAppConfig = await window.api.localAppConfig();
+    const gameList: GameConfig[] = JSON.parse(window.localStorage.getItem("gameList") || "[]");
+    if (gameList.length > 0) {
+        localAppConfig.games = localAppConfig?.games ?? [];
+        localAppConfig.games.push(...gameList);
+        window.localStorage.removeItem("gameList");
+    }
+    const oldConfigJson = window.localStorage.getItem("appConfig") || "{}";
+    if (oldConfigJson !== "{}") {
+        const oldConfig = (JSON.parse(oldConfigJson) as AppConfig);
+        localAppConfig = {...localAppConfig, ...oldConfig};
+        window.localStorage.removeItem("appConfig");
+    }
+    window.api.saveAppConfig(localAppConfig);
+}
+
 async function createGameList() {
+    await migrateConfig();
     let config: AppConfig;
     try {
         config = await window.api.appConfig();
     } catch (e) {
         console.log("Failed to load config.json");
     }
-    config = {...config, ...(JSON.parse(window.localStorage.getItem("appConfig") || "{}") as AppConfig)};
+
+    addStyle(config.customCSS ?? "");
 
     appVersion = await window.api.appVersion();
     document.querySelector("#current-version").textContent = appVersion;
@@ -148,7 +193,6 @@ async function createGameList() {
 
     applyAppConfig(config);
 
-
     gameItemList.childNodes.forEach((value) => {
             if (value.nodeName === "template")
                 return;
@@ -156,10 +200,7 @@ async function createGameList() {
         }
     );
 
-    const gameList = window.localStorage.getItem("gameList") || "[]";
-    let gameListJson: GameConfig[] = JSON.parse(gameList);
-    gameListJson = [...config.games, ...gameListJson];
-    gameListJson.forEach(createGameItem);
+    config.games.forEach(createGameItem);
 }
 
 while (!window) {
