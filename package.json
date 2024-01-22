@@ -50,6 +50,6 @@
     "make:linuxpkg": "electron-forge make --platform linux --targets '@electron-forge/maker-zip'"
   },
   "dependencies": {
-    "electron-squirrel-startup": "latest"
+    "electron-squirrel-startup": "^1.0.0"
   }
 }
