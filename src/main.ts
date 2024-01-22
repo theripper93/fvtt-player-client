@@ -47,7 +47,6 @@ const windowsData = {} as WindowsData;
 let partitionId: number = 0;
 
 function getSession(): Electron.Session {
-    if (!getAppConfig().experimentalMultiInstance) return session.defaultSession;
     const partitionIdTemp = partitionId;
     partitionId++
     if (partitionIdTemp == 0)
@@ -245,17 +244,32 @@ ipcMain.handle("app-version", () => app.getVersion())
 function getAppConfig(): AppConfig {
     try {
         const json = fs.readFileSync(path.join(app.getAppPath(), "config.json")).toString();
-        const appConfig = JSON.parse(json) as AppConfig;
+        let appConfig = JSON.parse(json) as AppConfig;
         if (appConfig.ignoreCertificateErrors) {
             app.commandLine.appendSwitch("ignore-certificate-errors");
         }
+        const userData = getUserData();
+        appConfig = {...appConfig, ...userData.app};
         return appConfig;
     } catch (e) {
         return {} as AppConfig;
     }
 }
 
+ipcMain.on("save-app-config", (_e, data: AppConfig) => {
+    const currentData = getUserData();
+    currentData.app = {...currentData.app, ...data};
+    fs.writeFileSync(path.join(app.getPath("userData"), "userData.json"), JSON.stringify(currentData));
+});
 ipcMain.handle("app-config", getAppConfig);
+ipcMain.handle("local-app-config", () => {
+    try {
+        const userData = getUserData();
+        return userData.app ?? {} as AppConfig;
+    } catch (e) {
+        return {} as AppConfig;
+    }
+});
 
 ipcMain.handle("select-path", (e) => {
     windowsData[e.sender.id].autoLogin = true;

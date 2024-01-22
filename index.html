@@ -101,6 +101,10 @@
                 <label for="clear-cache-on-close">Clear Cache on close</label>
                 <input class="no-text" id="clear-cache-on-close" type="checkbox">
             </div>
+            <div class="insecure-ssl-field field">
+                <label for="clear-cache-on-close">Ignore Certificate errors</label>
+                <input class="no-text" id="insecure-ssl" type="checkbox">
+            </div>
             <div class="button-group">
                 <button id="clear-cache">Clear Cache</button>
                 <button id="save-app-config">Save</button>
@@ -113,9 +117,7 @@
             <button onclick="copyText()">Copy</button>
             <button onclick="toggleExportConfig()">Close</button>
             <script>
-                const gamesList = JSON.parse(window.localStorage.getItem("gameList") || "[]");
-                const appConfig = JSON.parse(window.localStorage.getItem("appConfig") || "{}");
-                const config = {...appConfig, games: gamesList};
+                const config = await window.api.localAppConfig();
                 code = document.getElementById("export-text");
                 const text = JSON.stringify(config, null, 4);
                 txt = document.createTextNode(text);

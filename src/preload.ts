@@ -30,12 +30,14 @@ export type ContextBridgeApi = {
     userData: (gameId: string | number) => Promise<GameUserDataDecrypted>;
     appVersion: () => Promise<string>;
     appConfig: () => Promise<AppConfig>;
+    localAppConfig: () => Promise<AppConfig>;
     cachePath: () => Promise<string>;
     setCachePath: (cachePath: string) => void;
     returnToServerSelect: () => void;
     saveUserData: (data: SaveUserData) => void;
     openGame: (id: number | string) => void;
     clearCache: () => void;
+    saveAppConfig: (data: AppConfig) => void;
 }
 const exposedApi: ContextBridgeApi = {
     // request(channel: RequestChannels, ...args: unknown[]): Promise<unknown> {
@@ -53,6 +55,9 @@ const exposedApi: ContextBridgeApi = {
     },
     appConfig() {
         return ipcRenderer.invoke("app-config") as Promise<AppConfig>;
+    },
+    localAppConfig() {
+        return ipcRenderer.invoke("local-app-config") as Promise<AppConfig>;
     },
     appVersion() {
         return ipcRenderer.invoke("app-version") as Promise<string>;
@@ -75,6 +80,9 @@ const exposedApi: ContextBridgeApi = {
     setCachePath(cachePath: string) {
         ipcRenderer.send("cache-path", cachePath);
     },
+    saveAppConfig(data: AppConfig) {
+        ipcRenderer.send("save-app-config", data);
+    }
 
 
 }
