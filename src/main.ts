@@ -11,6 +11,7 @@ app.commandLine.appendSwitch("enable-features", "SharedArrayBuffer");
 
 /* Remove the comment (//) from the line below to ignore certificate errors (useful for self-signed certificates) */
 
+getAppConfig();
 //app.commandLine.appendSwitch("ignore-certificate-errors");
 
 function getUserData(): UserData {
@@ -229,11 +230,11 @@ function getAppConfig(): AppConfig {
     try {
         const json = fs.readFileSync(path.join(app.getAppPath(), "config.json")).toString();
         let appConfig = JSON.parse(json) as AppConfig;
+        const userData = getUserData();
+        appConfig = {...appConfig, ...userData.app};
         if (appConfig.ignoreCertificateErrors) {
             app.commandLine.appendSwitch("ignore-certificate-errors");
         }
-        const userData = getUserData();
-        appConfig = {...appConfig, ...userData.app};
         return appConfig;
     } catch (e) {
         return {} as AppConfig;
