@@ -1,7 +1,7 @@
 {
   "name": "vtt-desktop-client",
-  "packageManager": "yarn@3.3.1",
-  "version": "1.4.2",
+  "packageManager": "yarn@1.22.19",
+  "version": "1.5.0",
   "license": "MIT",
   "description": "VTT Desktop Client",
   "main": ".vite/build/main.js",
@@ -19,25 +19,24 @@
     }
   ],
   "devDependencies": {
-    "@electron-forge/cli": "^6.4.2",
-    "@electron-forge/maker-deb": "^6.4.2",
-    "@electron-forge/maker-dmg": "^6.4.2",
-    "@electron-forge/maker-flatpak": "^6.4.2",
-    "@electron-forge/maker-rpm": "^6.4.2",
-    "@electron-forge/maker-squirrel": "^6.4.2",
-    "@electron-forge/maker-zip": "^6.4.2",
-    "@electron-forge/plugin-auto-unpack-natives": "^6.4.2",
-    "@electron-forge/plugin-local-electron": "^6.4.2",
-    "@electron-forge/plugin-vite": "^6.4.2",
-    "@types/node": "^20.8.0",
-    "@typescript-eslint/eslint-plugin": "^6.7.3",
-    "@typescript-eslint/parser": "^6.7.3",
-    "electron": "^25.9.1",
-    "electron-builder": "^24.6.4",
-    "eslint": "^8.50.0",
-    "eslint-plugin-import": "^2.28.1",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "@electron-forge/cli": "^7.2.0",
+    "@electron-forge/maker-deb": "^7.2.0",
+    "@electron-forge/maker-dmg": "^7.2.0",
+    "@electron-forge/maker-flatpak": "^7.2.0",
+    "@electron-forge/maker-rpm": "^7.2.0",
+    "@electron-forge/maker-squirrel": "^7.2.0",
+    "@electron-forge/maker-zip": "^7.2.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.2.0",
+    "@electron-forge/plugin-vite": "^7.2.0",
+    "@types/node": "^20.11.5",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "electron": "^25.9.8",
+    "electron-builder": "^24.9.1",
+    "eslint": "^8.56.0",
+    "eslint-plugin-import": "^2.29.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   },
   "scripts": {
     "start": "electron-forge start",
@@ -47,7 +46,8 @@
     "make:linux": "electron-forge make --platform linux",
     "make:windows": "electron-forge make --platform win32",
     "make:macos": "electron-forge make --platform darwin",
-    "lint": "eslint --ext .ts,.tsx ."
+    "lint": "eslint --ext .ts,.tsx .",
+    "make:linuxpkg": "electron-forge make --platform linux --targets '@electron-forge/maker-zip'"
   },
   "dependencies": {
     "electron-squirrel-startup": "latest"

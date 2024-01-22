@@ -1,6 +1,6 @@
 // noinspection ES6MissingAwait,JSIgnoredPromiseFromCall
 
-import {app, BrowserWindow, ipcMain, safeStorage,} from 'electron';
+import {app, BrowserWindow, ipcMain, safeStorage, session} from 'electron';
 import path from 'path';
 import fs from 'fs';
 
@@ -44,16 +44,30 @@ if (!isSingleInstance) {
 
 const windowsData = {} as WindowsData;
 
+let partitionId: number = 0;
+
+function getSession(): Electron.Session {
+    if (!getAppConfig().experimentalMultiInstance) return session.defaultSession;
+    const partitionIdTemp = partitionId;
+    partitionId++
+    if (partitionIdTemp == 0)
+        return session.defaultSession;
+    return session.fromPartition(`persist:${partitionIdTemp}`, {cache: true});
+}
+
 // let win: BrowserWindow;
 
 function createWindow(): BrowserWindow {
+    const localSession = getSession();
     let window = new BrowserWindow({
         show: false, width: 800, height: 600, webPreferences: {
             preload: path.join(__dirname, "preload.js"),
             nodeIntegration: false,
             contextIsolation: true,
-            webgl: true
+            webgl: true,
+            session: localSession
         },
+
     });
 
     // Fix Popouts
@@ -212,14 +226,20 @@ ipcMain.handle("get-user-data", (_, gameId: GameId) => getLoginDetails(gameId))
 
 ipcMain.handle("app-version", () => app.getVersion())
 
-ipcMain.handle("app-config", () => {
+function getAppConfig(): AppConfig {
     try {
         const json = fs.readFileSync(path.join(app.getAppPath(), "config.json")).toString();
-        return JSON.parse(json) as AppConfig;
+        const appConfig = JSON.parse(json) as AppConfig;
+        if (appConfig.ignoreCertificateErrors) {
+            app.commandLine.appendSwitch("ignore-certificate-errors");
+        }
+        return appConfig;
     } catch (e) {
         return {} as AppConfig;
     }
-});
+}
+
+ipcMain.handle("app-config", getAppConfig);
 
 ipcMain.handle("select-path", (e) => {
     windowsData[e.sender.id].autoLogin = true;
@@ -244,7 +264,6 @@ ipcMain.on("return-select", (e) => {
         e.sender.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
     }
 });
-
 
 
 app.on('activate', (_, hasVisibleWindows) => {

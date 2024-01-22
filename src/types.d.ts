@@ -10,16 +10,21 @@ type GameConfig = {
     name: string;
     url: string;
     id?: GameId;
+    cssId?: string;
 }
 
 type AppConfig = {
     games: GameConfig[];
     background: string;
+    backgrounds?: string[];
     backgroundColor: string;
     textColor: string;
     accentColor: string;
     cachePath?: string;
     autoCacheClear?: boolean;
+    customCSS?: string;
+    ignoreCertificateErrors?: boolean;
+    experimentalMultiInstance?: boolean;
 }
 
 
