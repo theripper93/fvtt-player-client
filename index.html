@@ -21,7 +21,18 @@
     }
 
     function toggleExportConfig() {
+        (async () => {
+            let config = await window.api.localAppConfig();
+            let code = document.getElementById("export-text");
+            let text = JSON.stringify(config, null, 4);
+            let txt = document.createTextNode(text);
+            code.appendChild(txt);
+        })();
         document.querySelector('.config-export').classList.toggle('hidden2');
+    }
+
+    function copyText() {
+        navigator.clipboard.writeText(text);
     }
 
 </script>
@@ -112,17 +123,6 @@
             <pre><code id="export-text"></code></pre>
             <button onclick="copyText()">Copy</button>
             <button onclick="toggleExportConfig()">Close</button>
-            <script>
-                const config = await window.api.localAppConfig();
-                code = document.getElementById("export-text");
-                const text = JSON.stringify(config, null, 4);
-                txt = document.createTextNode(text);
-                code.appendChild(txt);
-
-                function copyText() {
-                    navigator.clipboard.writeText(text);
-                }
-            </script>
         </div>
     </section>
 
