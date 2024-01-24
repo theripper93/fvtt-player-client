@@ -37,6 +37,7 @@ document.querySelector("#add-game").addEventListener("click", async () => {
     if (!gameUrl || !gameName) return alert("Please enter a game name and url");
     const newGameItem = {name: gameName, url: gameUrl, id: Math.round(Math.random() * 1000000)} as GameConfig;
     await updateGameList((appConfig) => {
+        appConfig.games = appConfig?.games ?? [];
         appConfig.games.push(newGameItem);
     });
     gameUrlField.value = "";
