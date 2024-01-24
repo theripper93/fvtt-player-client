@@ -13,6 +13,7 @@ getAppConfig();
 
 /* Remove the comment (//) from the line below to ignore certificate errors (useful for self-signed certificates) */
 
+getAppConfig();
 //app.commandLine.appendSwitch("ignore-certificate-errors");
 
 function getUserData(): UserData {
