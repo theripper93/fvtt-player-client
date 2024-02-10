@@ -214,7 +214,7 @@ function createWindow(): BrowserWindow {
     });
 
     window.once('ready-to-show', () => {
-        window.maximize();
+        // window.maximize();
         window.show();
     });
     window.on('closed', () => {
@@ -245,9 +245,10 @@ ipcMain.handle("app-version", () => app.getVersion())
 function getAppConfig(): AppConfig {
     try {
         const json = fs.readFileSync(path.join(app.getAppPath(), "config.json")).toString();
+        console.log(json);
         let appConfig = JSON.parse(json) as AppConfig;
         const userData = getUserData();
-        appConfig = {...appConfig, ...userData.app};
+        appConfig = {...appConfig, ...userData.app, games: [...appConfig.games, ...userData.app.games]};
         if (appConfig.ignoreCertificateErrors) {
             app.commandLine.appendSwitch("ignore-certificate-errors");
         }
