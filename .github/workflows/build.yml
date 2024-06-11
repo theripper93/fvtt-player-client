@@ -81,18 +81,16 @@ jobs:
 
       - name: Rename output files
         run: |
-          ls out/make/zip/darwin
-          ls out/make/zip/darwin/*
-          mv out/make/zip/darwin/x64/vtt-desktop-client-darwin-x64-${{ github.event.release.tag_name }}.zip ./vtt-desktop-client-macos-x64-${{ github.event.release.tag_name }}.zip
-          mv out/make/vtt-desktop-client-${{ github.event.release.tag_name }}-x64.dmg ./vtt-desktop-client-${{ github.event.release.tag_name }}-x64.dmg
+          mv out/make/zip/darwin/arm64/vtt-desktop-client-darwin-arm64-${{ github.event.release.tag_name }}.zip ./vtt-desktop-client-macos-arm64-${{ github.event.release.tag_name }}.zip
+          mv out/make/vtt-desktop-client-${{ github.event.release.tag_name }}-arm64.dmg ./vtt-desktop-client-${{ github.event.release.tag_name }}-x64.dmg
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
         with:
           name: macos-outputs
           path: |
-            vtt-desktop-client-macos-x64-${{ github.event.release.tag_name }}.zip
-            vtt-desktop-client-${{ github.event.release.tag_name }}-x64.dmg
+            vtt-desktop-client-macos-arm64-${{ github.event.release.tag_name }}.zip
+            vtt-desktop-client-${{ github.event.release.tag_name }}-arm64.dmg
 
   build-windows:
     runs-on: windows-latest
