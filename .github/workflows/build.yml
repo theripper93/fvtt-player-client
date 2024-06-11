@@ -81,6 +81,7 @@ jobs:
 
       - name: Rename output files
         run: |
+          ls out/make/zip/darwin/x64
           mv out/make/zip/darwin/x64/vtt-desktop-client-darwin-x64-${{ github.event.release.tag_name }}.zip ./vtt-desktop-client-macos-x64-${{ github.event.release.tag_name }}.zip
           mv out/make/vtt-desktop-client-${{ github.event.release.tag_name }}-x64.dmg ./vtt-desktop-client-${{ github.event.release.tag_name }}-x64.dmg
 
