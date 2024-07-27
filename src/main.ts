@@ -9,6 +9,8 @@ if (require('electron-squirrel-startup')) app.quit();
 app.commandLine.appendSwitch("force_high_performance_gpu");
 app.commandLine.appendSwitch("enable-features", "SharedArrayBuffer");
 
+getAppConfig();
+
 /* Remove the comment (//) from the line below to ignore certificate errors (useful for self-signed certificates) */
 
 getAppConfig();
