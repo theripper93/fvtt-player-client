@@ -1,4 +1,4 @@
-# fvtt-player-client
+# fvtt-player-client - moved to https://github.com/OmegaRogue/fvtt-player-client
 
 wiki https://wiki.theripper93.com/free/vtt-desktop-client
 
